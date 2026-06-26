@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>EcoRoute Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: #060b10; font-family: 'Share Tech Mono', monospace; color: #00e5ff; }
+
+  /* ── 전체 레이아웃 ── */
+  .tw {
+    width: 100vw;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  /* ── 헤더 ── */
+  .hdr {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #00e5ff22;
+  }
+  .logo { font-size: 18px; letter-spacing: 6px; }
+  .logo span { color: #00ff88; }
+  .hdr-right { display: flex; align-items: center; gap: 20px; }
+  .hdr-stat { font-size: 10px; letter-spacing: 2px; color: #00e5ff55; }
+  .hdr-stat b { color: #00ff88; }
+
+  /* ── 2컬럼 메인 ── */
+  .row2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    flex: 1;
+  }
+  .col-left  { display: flex; flex-direction: column; gap: 12px; }
+  .col-right { display: flex; flex-direction: column; gap: 12px; }
+
+  /* ── 공통 패널 ── */
+  .panel {
+    background: #0a0f18;
+    border: 1px solid #00e5ff22;
+    border-radius: 6px;
+    padding: 14px;
+    position: relative;
+  }
+  .panel-label {
+    font-size: 9px;
+    letter-spacing: 3px;
+    color: #00e5ff44;
+    margin-bottom: 10px;
+  }
+
+  /* 패널 코너 장식 */
+  .corner { position: absolute; width: 10px; height: 10px; }
+  .corner.tl { top: 0; left: 0; border-top: 1px solid #00e5ff; border-left: 1px solid #00e5ff; border-radius: 2px 0 0 0; }
+  .corner.br { bottom: 0; right: 0; border-bottom: 1px solid #00e5ff; border-right: 1px solid #00e5ff; border-radius: 0 0 2px 0; }
+
+  /* 스캔라인 효과 */
+  .scanline {
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(0deg, transparent, transparent 2px, #00e5ff03 2px, #00e5ff03 4px);
+    pointer-events: none;
+    border-radius: 6px;
+  }
+
+  /* ── 입력 영역 ── */
+  .inp {
+    background: #050a10;
+    border: 1px solid #00e5ff33;
+    border-radius: 4px;
+    padding: 10px 12px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 13px;
+    color: #00e5ff;
+    width: 100%;
+    outline: none;
+  }
+
+  /* 목적 칩 */
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
+  .chip {
+    padding: 4px 11px;
+    border: 1px solid #00e5ff22;
+    border-radius: 20px;
+    font-size: 10px;
+    color: #00e5ff55;
+    cursor: pointer;
+    transition: all .15s;
+  }
+  .chip.on { border-color: #00e5ff; color: #00e5ff; background: #00e5ff15; }
+  .chip:hover { border-color: #00e5ff66; color: #00e5ff88; }
+
+  /* 실행 버튼 */
+  .run {
+    margin-top: 10px;
+    width: 100%;
+    padding: 9px;
+    background: transparent;
+    border: 1px solid #00e5ff66;
+    border-radius: 4px;
+    font-family: 'Share Tech Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: #00e5ff;
+    cursor: pointer;
+    transition: background .15s;
+  }
+  .run:hover { background: #00e5ff12; }
+
+  /* ── 복잡도 분석 바 ── */
+  .cb-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+  .cb-label { font-size: 10px; color: #00e5ff44; width: 70px; flex-shrink: 0; }
+  .cb-bg { flex: 1; height: 4px; background: #ffffff0a; border-radius: 2px; }
+  .cb-fill { height: 4px; border-radius: 2px; }
+
+  /* ── 히스토리 ── */
+  .h-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 6px 0;
+    border-bottom: 1px solid #00e5ff0f;
+    font-size: 11px;
+  }
+  .h-prompt { color: #00e5ff66; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 12px; }
+  .h-model  { color: #00ff8888; margin-right: 12px; }
+  .h-save   { color: #00ff88; }
+
+  /* ── 모델 비교 카드 ── */
+  .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .mcard { background: #060b10; border-radius: 5px; padding: 12px; }
+  .mcard.cur { border: 1px solid #ff444466; }
+  .mcard.rec { border: 1px solid #00e5ff66; }
+  .mc-label { font-size: 9px; letter-spacing: 3px; margin-bottom: 8px; }
+  .mcard.cur .mc-label { color: #ff4444; }
+  .mcard.rec .mc-label { color: #00e5ff; }
+  .mc-name { font-size: 13px; margin-bottom: 5px; }
+  .mcard.cur .mc-name { color: #ff8888; }
+  .mcard.rec .mc-name { color: #00e5ff; }
+  .mc-stat { font-size: 10px; color: #00e5ff44; line-height: 1.8; }
+  .mc-cost { font-size: 22px; margin-top: 8px; }
+  .mcard.cur .mc-cost { color: #ff6666; }
+  .mcard.rec .mc-cost { color: #00ff88; }
+
+  /* BEST 태그 */
+  .tag {
+    font-size: 9px;
+    padding: 2px 7px;
+    background: #00e5ff18;
+    border: 1px solid #00e5ff44;
+    color: #00e5ff;
+    border-radius: 2px;
+    margin-left: 6px;
+    letter-spacing: 1px;
+    vertical-align: middle;
+  }
+
+  /* ── 비용 절감 바 ── */
+  .savings-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .s-num { font-size: 26px; color: #00ff88; }
+  .s-pct { font-size: 12px; color: #00ff8866; }
+  .bar-bg  { height: 5px; background: #ffffff0a; border-radius: 3px; }
+  .bar-fill { height: 5px; background: linear-gradient(90deg, #00ff88, #00e5ff); border-radius: 3px; width: 94%; }
+
+  /* ── 탄소 임팩트 ── */
+  .eco-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .eco-item { background: #060b10; border: 1px solid #00ff8822; border-radius: 5px; padding: 10px; text-align: center; }
+  .eco-val  { font-size: 18px; color: #00ff88; }
+  .eco-unit { font-size: 9px; color: #00ff8855; letter-spacing: 2px; margin-top: 3px; }
+
+  /* ── 응답 박스 ── */
+  .response-box {
+    background: #060b10;
+    border: 1px solid #00e5ff22;
+    border-radius: 5px;
+    padding: 12px;
+    font-size: 12px;
+    color: #00e5ff88;
+    line-height: 1.9;
+    flex: 1;
+  }
+</style>
+</head>
+<body>
+<div class="tw">
+
+  <!-- ────────────── 헤더 ────────────── -->
+  <div class="hdr">
+    <div class="logo">ECO<span>ROUTE</span></div>
+    <div class="hdr-right">
+      <div class="hdr-stat">SESSIONS TODAY &nbsp;<b>142</b></div>
+      <div class="hdr-stat">TOTAL SAVED &nbsp;<b>$18.34</b></div>
+      <div class="hdr-stat">CO₂ REDUCED &nbsp;<b>44.1g</b></div>
+      <div class="hdr-stat" style="color:#00ff8888;">● ONLINE</div>
+    </div>
+  </div>
+
+  <!-- ────────────── 2컬럼 메인 ────────────── -->
+  <div class="row2">
+
+    <!-- ===== 왼쪽 컬럼 ===== -->
+    <div class="col-left">
+
+      <!-- 프롬프트 입력 -->
+      <div class="panel" style="border-color:#00e5ff33;">
+        <div class="corner tl"></div>
+        <div class="corner br"></div>
+        <div class="panel-label">▸ PROMPT INPUT</div>
+        <input class="inp" value="이 계약서 3페이지 내용 요약해줘" />
+        <div class="chips">
+          <div class="chip">CODE_REVIEW</div>
+          <div class="chip on">SUMMARIZE</div>
+          <div class="chip">COMPLEX_QA</div>
+          <div class="chip">TRANSLATION</div>
+          <div class="chip">SIMPLE_QA</div>
+        </div>
+        <button class="run">▶ &nbsp; ANALYZE &amp; ROUTE</button>
+      </div>
+
+      <!-- 복잡도 분석 -->
+      <div class="panel" style="flex:1;">
+        <div class="panel-label">▸ COMPLEXITY ANALYSIS</div>
+        <div class="scanline"></div>
+        <div class="cb-row">
+          <div class="cb-label">REASONING</div>
+          <div class="cb-bg"><div class="cb-fill" style="width:28%;background:#00e5ff;"></div></div>
+          <div style="font-size:10px;color:#00e5ff;width:36px;text-align:right;">LOW</div>
+        </div>
+        <div class="cb-row">
+          <div class="cb-label">CONTEXT</div>
+          <div class="cb-bg"><div class="cb-fill" style="width:55%;background:#00e5ff88;"></div></div>
+          <div style="font-size:10px;color:#00e5ff88;width:36px;text-align:right;">MED</div>
+        </div>
+        <div class="cb-row">
+          <div class="cb-label">CREATIVITY</div>
+          <div class="cb-bg"><div class="cb-fill" style="width:15%;background:#00e5ff44;"></div></div>
+          <div style="font-size:10px;color:#00e5ff44;width:36px;text-align:right;">LOW</div>
+        </div>
+        <div class="cb-row">
+          <div class="cb-label">DOMAIN</div>
+          <div class="cb-bg"><div class="cb-fill" style="width:40%;background:#00ff8888;"></div></div>
+          <div style="font-size:10px;color:#00ff88;width:36px;text-align:right;">MED</div>
+        </div>
+        <div style="margin-top:14px;font-size:11px;color:#00e5ff55;line-height:1.8;">
+          VERDICT &nbsp;<span style="color:#00ff88;font-size:13px;">SIMPLE TASK</span><br>
+          ROUTE → &nbsp;<span style="color:#00e5ff;">claude-haiku-4-5</span>
+        </div>
+      </div>
+
+      <!-- 히스토리 -->
+      <div class="panel">
+        <div class="panel-label">▸ RECENT HISTORY</div>
+        <div class="h-row">
+          <div class="h-prompt">파이썬 quicksort 구현해줘</div>
+          <div class="h-model">sonnet</div>
+          <div class="h-save">-$0.031</div>
+        </div>
+        <div class="h-row">
+          <div class="h-prompt">안녕하세요 라고 영어로</div>
+          <div class="h-model">haiku</div>
+          <div class="h-save">-$0.048</div>
+        </div>
+        <div class="h-row">
+          <div class="h-prompt">이 이메일 톤 좀 부드럽게</div>
+          <div class="h-model">haiku</div>
+          <div class="h-save">-$0.044</div>
+        </div>
+      </div>
+
+    </div><!-- /col-left -->
+
+    <!-- ===== 오른쪽 컬럼 ===== -->
+    <div class="col-right">
+
+      <!-- 모델 비교 -->
+      <div class="panel">
+        <div class="panel-label">▸ MODEL COMPARISON</div>
+        <div class="model-grid">
+          <div class="mcard cur">
+            <div class="mc-label">CURRENT</div>
+            <div class="mc-name">claude-sonnet-4-6</div>
+            <div class="mc-stat">
+              INPUT &nbsp;&nbsp;$3.00 / 1M<br>
+              OUTPUT $15.00 / 1M<br>
+              FIT &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#ff6666;">OVERKILL ↑</span>
+            </div>
+            <div class="mc-cost">$0.052</div>
+          </div>
+          <div class="mcard rec">
+            <div class="mc-label">RECOMMENDED</div>
+            <div class="mc-name">claude-haiku-4-5 <span class="tag">BEST</span></div>
+            <div class="mc-stat">
+              INPUT &nbsp;&nbsp;$0.80 / 1M<br>
+              OUTPUT $4.00 / 1M<br>
+              FIT &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#00ff88;">MATCH ✓</span>
+            </div>
+            <div class="mc-cost">$0.003</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 비용 절감 -->
+      <div class="panel">
+        <div class="panel-label">▸ COST REDUCTION</div>
+        <div class="savings-row">
+          <div class="s-num">$0.049 saved</div>
+          <div class="s-pct">94.2% cheaper</div>
+        </div>
+        <div class="bar-bg"><div class="bar-fill"></div></div>
+      </div>
+
+      <!-- 탄소 임팩트 -->
+      <div class="panel">
+        <div class="panel-label">▸ CARBON IMPACT</div>
+        <div class="eco-row">
+          <div class="eco-item">
+            <div class="eco-val">1.2g</div>
+            <div class="eco-unit">CO₂ SAVED</div>
+          </div>
+          <div class="eco-item">
+            <div class="eco-val">×0.3</div>
+            <div class="eco-unit">🌳 / YEAR</div>
+          </div>
+          <div class="eco-item">
+            <div class="eco-val">0.8km</div>
+            <div class="eco-unit">🚗 EQUIV.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 응답 박스 -->
+      <div class="panel" style="flex:1;display:flex;flex-direction:column;">
+        <div class="panel-label">▸ RESPONSE &nbsp;<span style="color:#00e5ff33;">claude-haiku-4-5</span></div>
+        <div class="response-box">
+          계약서 3페이지의 주요 내용 요약입니다.<br><br>
+          1. 계약 당사자 간 서비스 범위가 명시되어 있으며, 납기일은 2026년 8월 31일입니다.<br><br>
+          2. 위약금 조항은 계약금의 20%로 규정되어 있습니다.<br><br>
+          3. 분쟁 발생 시 서울중앙지방법원을 관할 법원으로 합니다.<br><br>
+          <span style="color:#00e5ff44;">▌</span>
+        </div>
+      </div>
+
+    </div><!-- /col-right -->
+
+  </div><!-- /row2 -->
+
+</div><!-- /tw -->
+
+<script>
+  /* 칩 토글 */
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
+      chip.classList.add('on');
+    });
+  });
+</script>
+</body>
+</html>
