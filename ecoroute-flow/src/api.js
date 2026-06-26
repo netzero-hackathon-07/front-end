@@ -1,4 +1,4 @@
-const BASE = '/api'
+const BASE = import.meta.env.VITE_API_BASE || '/api'
 
 /**
  * 백엔드 응답 래퍼 처리 — { success, data, error } 형태를 언래핑
