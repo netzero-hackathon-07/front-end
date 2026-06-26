@@ -8,360 +8,532 @@
 <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { background: #060b10; font-family: 'Share Tech Mono', monospace; color: #00e5ff; }
-
-  /* ── 전체 레이아웃 ── */
-  .tw {
-    width: 100vw;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    padding: 16px;
-    gap: 12px;
+  :root {
+    --bg:        #f5f7f7;
+    --bg-panel:  #ffffff;
+    --teal:      #0a5c5c;
+    --teal-mid:  #1a8f8f;
+    --teal-lite: #2cbfbf;
+    --teal-xlt:  #d0eeee;
+    --teal-dim:  #0a5c5c33;
+    --teal-dim2: #0a5c5c11;
+    --green:     #0a7a4a;
+    --green-mid: #16a86a;
   }
+  body { background:var(--bg); font-family:'Share Tech Mono',monospace; color:var(--teal); }
+  .tw { width:100vw; height:100vh; display:flex; flex-direction:column; padding:14px; gap:10px; }
 
-  /* ── 헤더 ── */
-  .hdr {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding-bottom: 12px;
-    border-bottom: 1px solid #00e5ff22;
-  }
-  .logo { font-size: 18px; letter-spacing: 6px; }
-  .logo span { color: #00ff88; }
-  .hdr-right { display: flex; align-items: center; gap: 20px; }
-  .hdr-stat { font-size: 10px; letter-spacing: 2px; color: #00e5ff55; }
-  .hdr-stat b { color: #00ff88; }
+  .hdr { display:flex; align-items:center; justify-content:space-between; padding-bottom:10px; border-bottom:2px solid var(--teal); flex-shrink:0; }
+  .logo { font-size:18px; letter-spacing:6px; color:var(--teal); font-weight:bold; }
+  .logo span { color:var(--green); }
+  .hdr-stat { font-size:10px; letter-spacing:2px; color:var(--green); }
 
-  /* ── 2컬럼 메인 ── */
-  .row2 {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    flex: 1;
-  }
-  .col-left  { display: flex; flex-direction: column; gap: 12px; }
-  .col-right { display: flex; flex-direction: column; gap: 12px; }
+  .main { display:grid; grid-template-columns:1fr 2.8fr; gap:10px; flex:1; min-height:0; }
+  .col-left  { display:grid; grid-template-rows:auto 1fr auto; gap:10px; min-height:0; }
+  .col-right { display:grid; grid-template-rows:auto 1fr auto; gap:10px; min-height:0; }
 
-  /* ── 공통 패널 ── */
-  .panel {
-    background: #0a0f18;
-    border: 1px solid #00e5ff22;
-    border-radius: 6px;
-    padding: 14px;
-    position: relative;
-  }
-  .panel-label {
-    font-size: 9px;
-    letter-spacing: 3px;
-    color: #00e5ff44;
-    margin-bottom: 10px;
-  }
+  .panel { background:var(--bg-panel); border:1px solid var(--teal-dim); border-radius:6px; padding:14px; position:relative; overflow:hidden; }
+  .panel-label { font-size:13px; letter-spacing:3px; color:var(--teal); margin-bottom:12px; }
 
-  /* 패널 코너 장식 */
-  .corner { position: absolute; width: 10px; height: 10px; }
-  .corner.tl { top: 0; left: 0; border-top: 1px solid #00e5ff; border-left: 1px solid #00e5ff; border-radius: 2px 0 0 0; }
-  .corner.br { bottom: 0; right: 0; border-bottom: 1px solid #00e5ff; border-right: 1px solid #00e5ff; border-radius: 0 0 2px 0; }
+  /* 탄소 */
+  .carbon-panel { border-top:2px solid var(--teal); display:flex; flex-direction:column; gap:14px; padding:16px; }
+  .tree-gauge-wrap { display:flex; align-items:center; gap:14px; }
+  .tree-icon { font-size:44px; flex-shrink:0; }
+  .tree-icon.pulse { animation:treePulse 0.6s ease; }
+  @keyframes treePulse { 0%{transform:scale(1)} 40%{transform:scale(1.18)} 100%{transform:scale(1)} }
+  .gauge-wrap { flex:1; display:flex; flex-direction:column; gap:6px; }
+  .gauge-label { font-size:12px; letter-spacing:2px; color:var(--teal-mid); }
+  .gauge-track { width:100%; height:14px; background:var(--teal-dim2); border:1px solid var(--teal-dim); border-radius:7px; overflow:hidden; }
+  .gauge-fill { height:100%; border-radius:7px; background:linear-gradient(90deg,var(--green-mid),var(--teal-lite)); width:0%; transition:width 1.2s cubic-bezier(.4,0,.2,1); position:relative; }
+  .gauge-fill::after { content:''; position:absolute; right:0; top:0; bottom:0; width:6px; background:rgba(255,255,255,0.5); border-radius:0 7px 7px 0; animation:shimmer 1.5s infinite; }
+  @keyframes shimmer { 0%,100%{opacity:0.4} 50%{opacity:1} }
+  .gauge-pct { font-size:12px; color:var(--teal); text-align:right; }
+  .counters { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .counter-item { background:var(--teal-dim2); border:1px solid var(--teal-dim); border-radius:5px; padding:10px 12px; display:flex; flex-direction:column; gap:3px; }
+  .counter-val { font-size:20px; color:var(--green); }
+  .counter-val.flash { animation:flashGreen .4s ease; }
+  @keyframes flashGreen { 0%{color:var(--teal-lite)} 100%{color:var(--green)} }
+  .counter-unit  { font-size:11px; color:var(--teal-mid); letter-spacing:2px; }
+  .counter-label { font-size:11px; color:var(--teal-dim); letter-spacing:1px; }
 
-  /* 스캔라인 효과 */
-  .scanline {
-    position: absolute; inset: 0;
-    background: repeating-linear-gradient(0deg, transparent, transparent 2px, #00e5ff03 2px, #00e5ff03 4px);
-    pointer-events: none;
-    border-radius: 6px;
-  }
-
-  /* ── 입력 영역 ── */
-  .inp {
-    background: #050a10;
-    border: 1px solid #00e5ff33;
-    border-radius: 4px;
-    padding: 10px 12px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 13px;
-    color: #00e5ff;
-    width: 100%;
-    outline: none;
-  }
-
-  /* 목적 칩 */
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }
-  .chip {
-    padding: 4px 11px;
-    border: 1px solid #00e5ff22;
-    border-radius: 20px;
-    font-size: 10px;
-    color: #00e5ff55;
-    cursor: pointer;
-    transition: all .15s;
-  }
-  .chip.on { border-color: #00e5ff; color: #00e5ff; background: #00e5ff15; }
-  .chip:hover { border-color: #00e5ff66; color: #00e5ff88; }
-
-  /* 실행 버튼 */
-  .run {
-    margin-top: 10px;
-    width: 100%;
-    padding: 9px;
-    background: transparent;
-    border: 1px solid #00e5ff66;
-    border-radius: 4px;
-    font-family: 'Share Tech Mono', monospace;
-    font-size: 12px;
-    letter-spacing: 3px;
-    color: #00e5ff;
-    cursor: pointer;
-    transition: background .15s;
-  }
-  .run:hover { background: #00e5ff12; }
-
-  /* ── 복잡도 분석 바 ── */
-  .cb-row { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-  .cb-label { font-size: 10px; color: #00e5ff44; width: 70px; flex-shrink: 0; }
-  .cb-bg { flex: 1; height: 4px; background: #ffffff0a; border-radius: 2px; }
-  .cb-fill { height: 4px; border-radius: 2px; }
-
-  /* ── 히스토리 ── */
-  .h-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 0;
-    border-bottom: 1px solid #00e5ff0f;
-    font-size: 11px;
-  }
-  .h-prompt { color: #00e5ff66; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-right: 12px; }
-  .h-model  { color: #00ff8888; margin-right: 12px; }
-  .h-save   { color: #00ff88; }
-
-  /* ── 모델 비교 카드 ── */
-  .model-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-  .mcard { background: #060b10; border-radius: 5px; padding: 12px; }
-  .mcard.cur { border: 1px solid #ff444466; }
-  .mcard.rec { border: 1px solid #00e5ff66; }
-  .mc-label { font-size: 9px; letter-spacing: 3px; margin-bottom: 8px; }
-  .mcard.cur .mc-label { color: #ff4444; }
-  .mcard.rec .mc-label { color: #00e5ff; }
-  .mc-name { font-size: 13px; margin-bottom: 5px; }
-  .mcard.cur .mc-name { color: #ff8888; }
-  .mcard.rec .mc-name { color: #00e5ff; }
-  .mc-stat { font-size: 10px; color: #00e5ff44; line-height: 1.8; }
-  .mc-cost { font-size: 22px; margin-top: 8px; }
-  .mcard.cur .mc-cost { color: #ff6666; }
-  .mcard.rec .mc-cost { color: #00ff88; }
-
-  /* BEST 태그 */
-  .tag {
-    font-size: 9px;
-    padding: 2px 7px;
-    background: #00e5ff18;
-    border: 1px solid #00e5ff44;
-    color: #00e5ff;
-    border-radius: 2px;
-    margin-left: 6px;
-    letter-spacing: 1px;
-    vertical-align: middle;
-  }
-
-  /* ── 비용 절감 바 ── */
-  .savings-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
-  .s-num { font-size: 26px; color: #00ff88; }
-  .s-pct { font-size: 12px; color: #00ff8866; }
-  .bar-bg  { height: 5px; background: #ffffff0a; border-radius: 3px; }
-  .bar-fill { height: 5px; background: linear-gradient(90deg, #00ff88, #00e5ff); border-radius: 3px; width: 94%; }
-
-  /* ── 탄소 임팩트 ── */
-  .eco-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
-  .eco-item { background: #060b10; border: 1px solid #00ff8822; border-radius: 5px; padding: 10px; text-align: center; }
-  .eco-val  { font-size: 18px; color: #00ff88; }
-  .eco-unit { font-size: 9px; color: #00ff8855; letter-spacing: 2px; margin-top: 3px; }
-
-  /* ── 응답 박스 ── */
-  .response-box {
-    background: #060b10;
-    border: 1px solid #00e5ff22;
+  /* 모델 적합도 */
+  .model-fit-panel { display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .mf-row { display:flex; align-items:center; gap:8px; padding:7px 6px; border-radius:5px; transition:background .3s; }
+  .mf-row.winner {
+    background: var(--teal-xlt);
+    border-left: 3px solid var(--green);
     border-radius: 5px;
-    padding: 12px;
-    font-size: 12px;
-    color: #00e5ff88;
-    line-height: 1.9;
-    flex: 1;
+    animation: winnerGlow 1.4s ease infinite;
   }
+  @keyframes winnerGlow {
+    0%,100% { background: var(--teal-xlt); border-left-color: var(--green); }
+    50%      { background: #a8dfd0;         border-left-color: var(--green-mid); }
+  }
+  .mf-name { font-size:12px; color:var(--teal-mid); width:90px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .3s; }
+  .mf-row.winner .mf-name { color:var(--green); font-size:13px; }
+  .mf-bar-bg  { flex:1; height:6px; background:var(--teal-dim2); border-radius:3px; overflow:hidden; }
+  .mf-bar-fill { height:6px; border-radius:3px; width:0%; background:linear-gradient(90deg,var(--teal-mid),var(--teal-lite)); transition:width 1s cubic-bezier(.4,0,.2,1); }
+  .mf-row.winner .mf-bar-fill { background:linear-gradient(90deg,var(--green),var(--green-mid)); }
+  .mf-score { font-size:12px; width:32px; text-align:right; flex-shrink:0; color:var(--teal-mid); transition:color .3s; }
+  .mf-row.winner .mf-score { color:var(--green); font-size:13px; }
+  .mf-star { font-size:13px; width:16px; flex-shrink:0; opacity:0; transition:opacity .4s; }
+  .mf-row.winner .mf-star { opacity:1; animation:starPop .5s ease; }
+  @keyframes starPop { 0%{transform:scale(0)} 60%{transform:scale(1.3)} 100%{transform:scale(1)} }
+
+  /* 추천 모델 */
+  .rec-card { border-top:2px solid var(--teal); }
+  .mc-badge { font-size:12px; letter-spacing:3px; color:var(--teal-mid); margin-bottom:8px; }
+  .mc-name  { font-size:15px; color:var(--teal); margin-bottom:8px; }
+  .tag { font-size:10px; padding:2px 7px; background:var(--teal-xlt); border:1px solid var(--teal); color:var(--teal); border-radius:2px; margin-left:6px; letter-spacing:1px; vertical-align:middle; }
+  .mc-stat { font-size:12px; color:var(--teal-mid); line-height:2; }
+  .mc-cost { font-size:26px; color:var(--green); margin-top:10px; }
+
+  /* 우상단 7/3 */
+  .top-right-row { display:grid; grid-template-columns:8fr 2fr; gap:0; border-top:2px solid var(--teal); padding:0; overflow:hidden; }
+  .cost-section { padding:14px; }
+  .cost-num { font-size:36px; color:var(--green); margin-bottom:6px; letter-spacing:-1px; }
+  .cost-pct { font-size:13px; color:var(--teal-mid); margin-bottom:10px; }
+  .bar-bg  { height:6px; background:var(--teal-dim2); border-radius:3px; }
+  .bar-fill { height:6px; background:linear-gradient(90deg,var(--green-mid),var(--teal-lite)); border-radius:3px; width:0%; transition:width 1.2s cubic-bezier(.4,0,.2,1); }
+  .stats-section { padding:14px; border-left:1px solid var(--teal-dim); display:flex; flex-direction:column; justify-content:space-around; }
+  .stat-item { display:flex; flex-direction:column; gap:2px; }
+  .stat-label { font-size:11px; letter-spacing:2px; color:var(--teal-mid); }
+  .stat-val   { font-size:16px; color:var(--green); }
+
+  /* 응답창 */
+  .response-panel { display:flex; flex-direction:column; min-height:0; }
+  .response-box { flex:1; min-height:0; background:var(--bg); border:1px solid var(--teal-dim); border-radius:4px; padding:16px; font-size:14px; color:var(--teal); line-height:2; overflow-y:auto; position:relative; white-space:pre-wrap; }
+  .response-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; font-size:14px; color:var(--teal-dim); letter-spacing:2px; }
+  .loading-overlay { position:absolute; inset:0; background:rgba(245,247,247,0.92); border-radius:4px; display:none; flex-direction:column; align-items:center; justify-content:center; gap:16px; z-index:10; }
+  .loading-overlay.active { display:flex; }
+  .loading-dots { display:flex; gap:8px; }
+  .loading-dot { width:8px; height:8px; border-radius:50%; background:var(--teal-mid); animation:dotBounce 1.2s infinite ease-in-out; }
+  .loading-dot:nth-child(2){animation-delay:.2s} .loading-dot:nth-child(3){animation-delay:.4s}
+  @keyframes dotBounce { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1.2);opacity:1} }
+  .loading-text { font-size:12px; letter-spacing:3px; color:var(--teal-mid); }
+  .loading-bar-wrap { width:160px; height:3px; background:var(--teal-dim2); border-radius:2px; overflow:hidden; }
+  .loading-bar { height:100%; width:0%; background:var(--teal-lite); border-radius:2px; animation:loadProgress 2s ease-in-out infinite; }
+  @keyframes loadProgress { 0%{width:0%;opacity:1} 70%{width:90%;opacity:1} 100%{width:100%;opacity:0} }
+
+  /* 입력 영역 */
+  .input-row { display:grid; grid-template-columns:160px 160px 1fr auto; gap:10px; align-items:stretch; }
+
+  /* LLM Select */
+  .llm-select-wrap { position:relative; }
+  .model-select-btn {
+    width:100%; height:100%;
+    background:var(--bg-panel); border:1px solid var(--teal-dim); border-top:2px solid var(--teal);
+    border-radius:6px; padding:14px; cursor:pointer;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    transition:background .15s;
+  }
+  .model-select-btn:hover { background:var(--teal-xlt); }
+  .msb-label { font-size:11px; letter-spacing:2px; color:var(--teal-mid); }
+  .msb-val   { font-size:14px; color:var(--teal); }
+  .msb-arrow { font-size:10px; color:var(--teal-mid); margin-top:2px; }
+
+  /* 드롭다운 */
+  .llm-dropdown {
+    display:none; position:absolute;
+    bottom:calc(100% + 6px); left:0; right:0;
+    background:var(--bg-panel);
+    border:1px solid var(--teal-dim); border-top:2px solid var(--teal);
+    border-radius:6px; overflow:hidden; z-index:100;
+    box-shadow:0 -4px 16px #0a5c5c18;
+  }
+  .llm-dropdown.open { display:block; }
+  .llm-opt {
+    padding:10px 14px; font-size:12px; color:var(--teal);
+    cursor:pointer; border-bottom:1px solid var(--teal-dim2);
+    display:flex; justify-content:space-between; align-items:center;
+    transition:background .12s; position:relative; overflow:hidden;
+  }
+  .llm-opt:last-child { border-bottom:none; }
+  .llm-opt:hover { background:var(--teal-xlt); color:var(--teal); }
+  .llm-opt.selected { color:var(--teal); background:var(--teal-dim2); }
+
+  /* 드롭다운 당선 모델 반짝 */
+  .llm-opt.opt-winner {
+    background: var(--teal-xlt);
+    border-left: 3px solid var(--green);
+    color: var(--teal) !important;
+    animation: optWinnerGlow 1.4s ease infinite;
+  }
+  @keyframes optWinnerGlow {
+    0%,100% { background: var(--teal-xlt); border-left-color: var(--green); }
+    50%      { background: #a8dfd0; border-left-color: var(--green-mid); }
+  }
+  .llm-opt.opt-winner.selected {
+    background: var(--teal-xlt);
+    border-left: 3px solid var(--green);
+    animation: optWinnerGlow 1.4s ease infinite;
+  }
+  .llm-opt-left { display:flex; align-items:center; gap:6px; }
+  .llm-opt.opt-winner .llm-opt-left span:last-child { color:var(--green); font-size:13px; }
+  .opt-star { font-size:14px; color:var(--green); opacity:0; transition:opacity .3s; font-weight:bold; }
+  .llm-opt.opt-winner .opt-star { opacity:1; animation:starPop .5s ease; }
+  .llm-opt-price { font-size:11px; color:var(--teal-mid); }
+  .llm-opt.opt-winner .llm-opt-price { color:var(--green-mid); }
+
+  /* 입력창 */
+  .input-panel { background:var(--bg-panel); border:1px solid var(--teal-dim); border-top:2px solid var(--teal); border-radius:6px; padding:14px; display:flex; align-items:center; }
+  .inp { background:transparent; border:none; outline:none; font-family:'Share Tech Mono',monospace; font-size:15px; color:var(--teal); width:100%; }
+  .inp::placeholder { color:var(--teal-dim); }
+
+  /* ── ANALYZE 버튼 — 절반 크기 ── */
+  .run-btn {
+    background:var(--teal); border:none; border-radius:6px;
+    padding:0 14px;             /* 24 → 14 */
+    font-family:'Share Tech Mono',monospace;
+    font-size:11px;             /* 13 → 11 */
+    letter-spacing:1px;         /* 2 → 1 */
+    color:#fff; cursor:pointer; transition:background .15s; white-space:nowrap;
+    border-top:2px solid var(--teal-mid);
+  }
+  .run-btn:hover { background:var(--teal-mid); }
+  .run-btn:disabled { background:var(--teal-dim); cursor:not-allowed; }
 </style>
 </head>
 <body>
 <div class="tw">
 
-  <!-- ────────────── 헤더 ────────────── -->
   <div class="hdr">
     <div class="logo">ECO<span>ROUTE</span></div>
-    <div class="hdr-right">
-      <div class="hdr-stat">SESSIONS TODAY &nbsp;<b>142</b></div>
-      <div class="hdr-stat">TOTAL SAVED &nbsp;<b>$18.34</b></div>
-      <div class="hdr-stat">CO₂ REDUCED &nbsp;<b>44.1g</b></div>
-      <div class="hdr-stat" style="color:#00ff8888;">● ONLINE</div>
-    </div>
+    <div class="hdr-stat">● 온라인</div>
   </div>
 
-  <!-- ────────────── 2컬럼 메인 ────────────── -->
-  <div class="row2">
-
-    <!-- ===== 왼쪽 컬럼 ===== -->
+  <div class="main">
     <div class="col-left">
 
-      <!-- 프롬프트 입력 -->
-      <div class="panel" style="border-color:#00e5ff33;">
-        <div class="corner tl"></div>
-        <div class="corner br"></div>
-        <div class="panel-label">▸ PROMPT INPUT</div>
-        <input class="inp" value="이 계약서 3페이지 내용 요약해줘" />
-        <div class="chips">
-          <div class="chip">CODE_REVIEW</div>
-          <div class="chip on">SUMMARIZE</div>
-          <div class="chip">COMPLEX_QA</div>
-          <div class="chip">TRANSLATION</div>
-          <div class="chip">SIMPLE_QA</div>
+      <div class="panel carbon-panel">
+        
+        <div class="panel-label">▸ 탄소 영향</div>
+        <div class="tree-gauge-wrap">
+          <div class="tree-icon" id="treeIcon">🌳</div>
+          <div class="gauge-wrap">
+            <div class="gauge-label">다음 나무까지</div>
+            <div class="gauge-track"><div class="gauge-fill" id="gaugeFill"></div></div>
+            <div class="gauge-pct"><span id="gaugePct">0</span>% / 100%</div>
+          </div>
         </div>
-        <button class="run">▶ &nbsp; ANALYZE &amp; ROUTE</button>
-      </div>
-
-      <!-- 복잡도 분석 -->
-      <div class="panel" style="flex:1;">
-        <div class="panel-label">▸ COMPLEXITY ANALYSIS</div>
-        <div class="scanline"></div>
-        <div class="cb-row">
-          <div class="cb-label">REASONING</div>
-          <div class="cb-bg"><div class="cb-fill" style="width:28%;background:#00e5ff;"></div></div>
-          <div style="font-size:10px;color:#00e5ff;width:36px;text-align:right;">LOW</div>
-        </div>
-        <div class="cb-row">
-          <div class="cb-label">CONTEXT</div>
-          <div class="cb-bg"><div class="cb-fill" style="width:55%;background:#00e5ff88;"></div></div>
-          <div style="font-size:10px;color:#00e5ff88;width:36px;text-align:right;">MED</div>
-        </div>
-        <div class="cb-row">
-          <div class="cb-label">CREATIVITY</div>
-          <div class="cb-bg"><div class="cb-fill" style="width:15%;background:#00e5ff44;"></div></div>
-          <div style="font-size:10px;color:#00e5ff44;width:36px;text-align:right;">LOW</div>
-        </div>
-        <div class="cb-row">
-          <div class="cb-label">DOMAIN</div>
-          <div class="cb-bg"><div class="cb-fill" style="width:40%;background:#00ff8888;"></div></div>
-          <div style="font-size:10px;color:#00ff88;width:36px;text-align:right;">MED</div>
-        </div>
-        <div style="margin-top:14px;font-size:11px;color:#00e5ff55;line-height:1.8;">
-          VERDICT &nbsp;<span style="color:#00ff88;font-size:13px;">SIMPLE TASK</span><br>
-          ROUTE → &nbsp;<span style="color:#00e5ff;">claude-haiku-4-5</span>
+        <div class="counters">
+          <div class="counter-item">
+            <div class="counter-val" id="cntCo2">0.0</div>
+            <div class="counter-unit">g CO₂</div>
+            <div class="counter-label">⚡ 이번 세션</div>
+          </div>
+          <div class="counter-item">
+            <div class="counter-val" id="cntKm">0.0</div>
+            <div class="counter-unit">km</div>
+            <div class="counter-label">🚗 자동차 절감</div>
+          </div>
         </div>
       </div>
 
-      <!-- 히스토리 -->
-      <div class="panel">
-        <div class="panel-label">▸ RECENT HISTORY</div>
-        <div class="h-row">
-          <div class="h-prompt">파이썬 quicksort 구현해줘</div>
-          <div class="h-model">sonnet</div>
-          <div class="h-save">-$0.031</div>
-        </div>
-        <div class="h-row">
-          <div class="h-prompt">안녕하세요 라고 영어로</div>
-          <div class="h-model">haiku</div>
-          <div class="h-save">-$0.048</div>
-        </div>
-        <div class="h-row">
-          <div class="h-prompt">이 이메일 톤 좀 부드럽게</div>
-          <div class="h-model">haiku</div>
-          <div class="h-save">-$0.044</div>
-        </div>
+      <div class="panel model-fit-panel">
+        <div class="panel-label">▸ 모델 적합도</div>
+        <div id="modelFitList"></div>
       </div>
 
-    </div><!-- /col-left -->
+      <div class="panel rec-card">
+        <div class="mc-badge">▸ 추천 모델</div>
+        <div class="mc-name" id="recName">—</div>
+        <div class="mc-stat" id="recStat" style="color:var(--teal-mid);">질문을 입력하면<br>모델을 추천해드립니다.</div>
+        <div class="mc-cost" id="recCost">—</div>
+      </div>
 
-    <!-- ===== 오른쪽 컬럼 ===== -->
+    </div>
+
     <div class="col-right">
 
-      <!-- 모델 비교 -->
-      <div class="panel">
-        <div class="panel-label">▸ MODEL COMPARISON</div>
-        <div class="model-grid">
-          <div class="mcard cur">
-            <div class="mc-label">CURRENT</div>
-            <div class="mc-name">claude-sonnet-4-6</div>
-            <div class="mc-stat">
-              INPUT &nbsp;&nbsp;$3.00 / 1M<br>
-              OUTPUT $15.00 / 1M<br>
-              FIT &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#ff6666;">OVERKILL ↑</span>
-            </div>
-            <div class="mc-cost">$0.052</div>
+      <div class="panel top-right-row">
+        <div class="cost-section">
+          <div class="panel-label">▸ 비용 절감</div>
+          <div class="cost-num" id="costNum">$0.000 saved</div>
+          <div class="cost-pct" id="costPct">— cheaper</div>
+          <div class="bar-bg"><div class="bar-fill" id="costBar"></div></div>
+        </div>
+        <div class="stats-section">
+          <div class="stat-item">
+            <div class="stat-label">오늘 세션 수</div>
+            <div class="stat-val">142</div>
           </div>
-          <div class="mcard rec">
-            <div class="mc-label">RECOMMENDED</div>
-            <div class="mc-name">claude-haiku-4-5 <span class="tag">BEST</span></div>
-            <div class="mc-stat">
-              INPUT &nbsp;&nbsp;$0.80 / 1M<br>
-              OUTPUT $4.00 / 1M<br>
-              FIT &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#00ff88;">MATCH ✓</span>
-            </div>
-            <div class="mc-cost">$0.003</div>
+          <div class="stat-item">
+            <div class="stat-label">누적 절감액</div>
+            <div class="stat-val">$18.34</div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">탄소 감축량</div>
+            <div class="stat-val">44.1g</div>
           </div>
         </div>
       </div>
 
-      <!-- 비용 절감 -->
-      <div class="panel">
-        <div class="panel-label">▸ COST REDUCTION</div>
-        <div class="savings-row">
-          <div class="s-num">$0.049 saved</div>
-          <div class="s-pct">94.2% cheaper</div>
-        </div>
-        <div class="bar-bg"><div class="bar-fill"></div></div>
-      </div>
-
-      <!-- 탄소 임팩트 -->
-      <div class="panel">
-        <div class="panel-label">▸ CARBON IMPACT</div>
-        <div class="eco-row">
-          <div class="eco-item">
-            <div class="eco-val">1.2g</div>
-            <div class="eco-unit">CO₂ SAVED</div>
-          </div>
-          <div class="eco-item">
-            <div class="eco-val">×0.3</div>
-            <div class="eco-unit">🌳 / YEAR</div>
-          </div>
-          <div class="eco-item">
-            <div class="eco-val">0.8km</div>
-            <div class="eco-unit">🚗 EQUIV.</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- 응답 박스 -->
-      <div class="panel" style="flex:1;display:flex;flex-direction:column;">
-        <div class="panel-label">▸ RESPONSE &nbsp;<span style="color:#00e5ff33;">claude-haiku-4-5</span></div>
+      <div class="panel response-panel">
+        <div class="panel-label">▸ 응답 &nbsp;<span style="color:var(--teal-mid);font-size:12px;" id="respModel">—</span></div>
         <div class="response-box">
-          계약서 3페이지의 주요 내용 요약입니다.<br><br>
-          1. 계약 당사자 간 서비스 범위가 명시되어 있으며, 납기일은 2026년 8월 31일입니다.<br><br>
-          2. 위약금 조항은 계약금의 20%로 규정되어 있습니다.<br><br>
-          3. 분쟁 발생 시 서울중앙지방법원을 관할 법원으로 합니다.<br><br>
-          <span style="color:#00e5ff44;">▌</span>
+          <div class="loading-overlay" id="loadingOverlay">
+            <div class="loading-dots">
+              <div class="loading-dot"></div>
+              <div class="loading-dot"></div>
+              <div class="loading-dot"></div>
+            </div>
+            <div class="loading-text">분석 중</div>
+            <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
+          </div>
+          <div id="responseContent"><div class="response-placeholder">LLM 질문에 대한 답</div></div>
         </div>
       </div>
 
-    </div><!-- /col-right -->
+      <div class="input-row">
 
-  </div><!-- /row2 -->
+        <!-- 모델 선택 (1/2 크기) -->
+        <div class="llm-select-wrap">
+          <div class="llm-dropdown" id="llmDropdown"></div>
+          <button class="model-select-btn" id="modelSelectBtn" onclick="toggleDropdown()">
+            <div class="msb-label">▸ 모델 선택</div>
+            <div class="msb-val" id="modelBtnVal">Haiku 4.5</div>
+            <div class="msb-arrow">▼ 변경</div>
+          </button>
+        </div>
 
-</div><!-- /tw -->
+        <!-- 카테고리 선택 -->
+        <div class="llm-select-wrap">
+          <div class="llm-dropdown" id="catDropdown"></div>
+          <button class="model-select-btn" onclick="toggleCatDropdown()">
+            <div class="msb-label">▸ 카테고리</div>
+            <div class="msb-val" id="catBtnVal">💻 코딩</div>
+            <div class="msb-arrow">▼ 변경</div>
+          </button>
+        </div>
+
+        <!-- 입력창 -->
+        <div class="input-panel">
+          <input class="inp" id="promptInp" placeholder="질문을 입력하세요..." />
+        </div>
+
+        <!-- 시작 버튼 -->
+        <button class="run-btn" id="runBtn" onclick="handleRun()">▶ 시작</button>
+
+      </div>
+
+    </div>
+  </div>
+</div>
 
 <script>
-  /* 칩 토글 */
-  document.querySelectorAll('.chip').forEach(chip => {
-    chip.addEventListener('click', () => {
-      document.querySelectorAll('.chip').forEach(c => c.classList.remove('on'));
-      chip.classList.add('on');
+
+
+
+
+  /* ── 카테고리 ── */
+  const CAT_SCORES = {
+    coding:    [45, 95, 40, 88, 38, 80],
+    reasoning: [42, 90, 38, 85, 44, 88],
+    summary:   [92, 60, 85, 55, 88, 58],
+    chat:      [95, 55, 90, 50, 86, 52],
+    creative:  [50, 88, 55, 92, 48, 72],
+    data:      [48, 88, 50, 90, 46, 84],
+  };
+  let selectedCat = 'coding';
+
+  const CATS = [
+    { id:'coding',    label:'💻 코딩' },
+    { id:'reasoning', label:'🧠 추론' },
+    { id:'summary',   label:'📝 요약/정리' },
+    { id:'chat',      label:'💬 일반 대화' },
+    { id:'creative',  label:'🎨 창작' },
+    { id:'data',      label:'📊 데이터 분석' },
+  ];
+
+  function renderCatDropdown() {
+    const dd = document.getElementById('catDropdown');
+    dd.innerHTML = CATS.map(c => `
+      <div class="llm-opt ${c.id === selectedCat ? 'selected' : ''}"
+           onclick="selectCat('${c.id}', '${c.label}')">
+        ${c.label}
+      </div>`).join('');
+  }
+  renderCatDropdown();
+
+  function toggleCatDropdown() {
+    document.getElementById('catDropdown').classList.toggle('open');
+  }
+  function selectCat(id, label) {
+    selectedCat = id;
+    document.getElementById('catBtnVal').textContent = label;
+    renderCatDropdown();
+    document.getElementById('catDropdown').classList.remove('open');
+  }
+
+  const MODELS = [
+    { id:'claude-haiku-4-5',  label:'Haiku 4.5',   inputP:0.80,  outputP:4.00  },
+    { id:'claude-sonnet-4-6', label:'Sonnet 4.6',  inputP:3.00,  outputP:15.00 },
+    { id:'gpt-4o-mini',       label:'GPT-4o mini', inputP:0.15,  outputP:0.60  },
+    { id:'gpt-4o',            label:'GPT-4o',      inputP:2.50,  outputP:10.00 },
+    { id:'gemini-1.5-flash',  label:'Gem Flash',   inputP:0.075, outputP:0.30  },
+    { id:'gemini-1.5-pro',    label:'Gem Pro',     inputP:1.25,  outputP:5.00  },
+  ];
+
+  let selectedModelIdx = 0;
+  let winnerIdx = -1;  // 분석 전 -1, 분석 후 당선 인덱스
+
+  /* 드롭다운 렌더 */
+  const dropdown = document.getElementById('llmDropdown');
+  function renderDropdown() {
+    dropdown.innerHTML = MODELS.map((m, i) => {
+      const isWinner   = winnerIdx !== -1 && i === winnerIdx;
+      const isSelected = i === selectedModelIdx;
+      return `
+        <div class="llm-opt ${isSelected ? 'selected' : ''} ${isWinner ? 'opt-winner' : ''}"
+             onclick="selectModel(${i})">
+          <div class="llm-opt-left">
+            <span class="opt-star">★</span>
+            <span>${m.label}</span>
+          </div>
+          <span class="llm-opt-price">$${m.inputP.toFixed(3)}/1M</span>
+        </div>`;
+    }).join('');
+  }
+  renderDropdown();
+
+  function toggleDropdown() {
+    dropdown.classList.toggle('open');
+  }
+  function selectModel(idx) {
+    selectedModelIdx = idx;
+    document.getElementById('modelBtnVal').textContent = MODELS[idx].label;
+    renderDropdown();
+    dropdown.classList.remove('open');
+  }
+  document.addEventListener('click', e => {
+    const wraps = document.querySelectorAll('.llm-select-wrap');
+    wraps.forEach(w => {
+      if (!w.contains(e.target)) {
+        w.querySelector('.llm-dropdown') && w.querySelector('.llm-dropdown').classList.remove('open');
+      }
     });
+  });
+
+  /* 모델 적합도 바 */
+  const listEl = document.getElementById('modelFitList');
+  MODELS.forEach((m, i) => {
+    listEl.innerHTML += `
+      <div class="mf-row" id="mfrow-${i}">
+        <span class="mf-star" id="mfstar-${i}">★</span>
+        <div class="mf-name">${m.label}</div>
+        <div class="mf-bar-bg"><div class="mf-bar-fill" id="mfbar-${i}"></div></div>
+        <div class="mf-score" id="mfscore-${i}">—</div>
+      </div>`;
+  });
+
+  let totalCo2 = 0, totalKm = 0;
+  const TREE_THRESHOLD = 22000;
+
+  function animateCount(el, from, to, dur, dec) {
+    const t0 = performance.now();
+    (function step(now) {
+      const t = Math.min((now - t0) / dur, 1);
+      const e = 1 - Math.pow(1 - t, 3);
+      el.textContent = (from + (to - from) * e).toFixed(dec);
+      if (t < 1) requestAnimationFrame(step); else el.textContent = to.toFixed(dec);
+    })(t0);
+  }
+
+  function updateCarbon(addCo2, addKm) {
+    const p2 = totalCo2, pK = totalKm;
+    totalCo2 += addCo2; totalKm += addKm;
+    const co2El = document.getElementById('cntCo2');
+    const kmEl  = document.getElementById('cntKm');
+    co2El.classList.remove('flash'); void co2El.offsetWidth; co2El.classList.add('flash');
+    kmEl.classList.remove('flash');  void kmEl.offsetWidth;  kmEl.classList.add('flash');
+    animateCount(co2El, p2, totalCo2, 1200, 1);
+    animateCount(kmEl,  pK, totalKm,  1200, 1);
+    const pct = Math.min((totalCo2 % TREE_THRESHOLD) / TREE_THRESHOLD * 100, 100);
+    document.getElementById('gaugeFill').style.width = pct + '%';
+    animateCount(document.getElementById('gaugePct'), 0, Math.round(pct), 1200, 0);
+    const tEl = document.getElementById('treeIcon');
+    tEl.classList.remove('pulse'); void tEl.offsetWidth; tEl.classList.add('pulse');
+  }
+
+  function updateModelFit(scores) {
+    const maxScore = Math.max(...scores);
+    winnerIdx = scores.indexOf(maxScore);
+    MODELS.forEach((m, i) => {
+      document.getElementById('mfrow-' + i).classList.remove('winner');
+      setTimeout(() => {
+        document.getElementById('mfbar-' + i).style.width = scores[i] + '%';
+        document.getElementById('mfscore-' + i).textContent = scores[i];
+      }, 100);
+    });
+    setTimeout(() => {
+      document.getElementById('mfrow-' + winnerIdx).classList.add('winner');
+      renderDropdown(); // 드롭다운에도 반짝 반영
+    }, 1200);
+    return winnerIdx;
+  }
+
+  function updateCost(saved, pct) {
+    document.getElementById('costNum').textContent = '$' + saved.toFixed(3) + ' saved';
+    document.getElementById('costPct').textContent = pct.toFixed(1) + '% cheaper';
+    setTimeout(() => { document.getElementById('costBar').style.width = pct + '%'; }, 100);
+  }
+
+  function updateRecommended(idx, cost) {
+    const m = MODELS[idx];
+    document.getElementById('recName').innerHTML = m.label + ' <span class="tag">최적</span>';
+    document.getElementById('recStat').innerHTML =
+      'INPUT &nbsp;&nbsp;$' + m.inputP.toFixed(3) + ' / 1M<br>' +
+      'OUTPUT $' + m.outputP.toFixed(2) + ' / 1M<br>' +
+      'FIT &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--green);">적합 ✓</span>';
+    document.getElementById('recCost').textContent = '$' + cost.toFixed(3);
+    document.getElementById('respModel').textContent = m.id;
+  }
+
+  async function handleRun() {
+    const prompt = document.getElementById('promptInp').value.trim();
+    if (!prompt) return;
+    const btn = document.getElementById('runBtn');
+    btn.disabled = true; btn.textContent = '... 분석 중';
+    document.getElementById('loadingOverlay').classList.add('active');
+    document.getElementById('responseContent').innerHTML = '<div class="response-placeholder">분석 중...</div>';
+    MODELS.forEach((m, i) => {
+      document.getElementById('mfrow-' + i).classList.remove('winner');
+      document.getElementById('mfbar-' + i).style.width = '0%';
+      document.getElementById('mfscore-' + i).textContent = '—';
+    });
+    winnerIdx = -1;
+    renderDropdown();
+
+    await new Promise(r => setTimeout(r, 2000));
+
+    const scores     = CAT_SCORES[selectedCat] || (prompt.length > 30 ? [52,91,48,78,44,85] : [94,61,88,55,82,58]);
+    const isComplex  = scores.indexOf(Math.max(...scores)) !== 0;
+    const idx       = updateModelFit(scores);
+    updateRecommended(idx, isComplex ? 0.040 : 0.003);
+    updateCost(isComplex ? 0.012 : 0.049, isComplex ? 45.0 : 94.2);
+    updateCarbon(isComplex ? 0.4 : 1.2, isComplex ? 0.3 : 0.8);
+
+    const mockResp = isComplex
+      ? '복잡한 추론이 필요한 작업으로 판단되어 Sonnet 모델을 배정했습니다.\n\n입력하신 내용을 심층 분석합니다.'
+      : '계약서 3페이지의 주요 내용 요약입니다.\n\n1. 납기일은 2026년 8월 31일입니다.\n2. 위약금은 계약금의 20%입니다.\n3. 관할 법원은 서울중앙지방법원입니다.';
+
+    document.getElementById('loadingOverlay').classList.remove('active');
+    const respEl = document.getElementById('responseContent');
+    respEl.textContent = '';
+    let i = 0;
+    const typing = setInterval(() => {
+      respEl.textContent += mockResp[i++];
+      if (i >= mockResp.length) {
+        clearInterval(typing);
+        btn.disabled = false;
+        btn.textContent = '▶ 시작';
+      }
+    }, 18);
+  }
+
+  document.getElementById('promptInp').addEventListener('keydown', e => {
+    if (e.key === 'Enter') handleRun();
   });
 </script>
 </body>
