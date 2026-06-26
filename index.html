@@ -31,7 +31,8 @@
   .main { display:grid; grid-template-columns:1fr 2.8fr; gap:10px; flex:1; min-height:0; }
   .col-left  { display:grid; grid-template-rows:auto 1fr auto; gap:10px; min-height:0; }
   .col-right { display:grid; grid-template-rows:auto 1fr auto; gap:10px; min-height:0; }
-
+</style>
+<style>
   .panel { background:var(--bg-panel); border:1px solid var(--teal-dim); border-radius:6px; padding:14px; position:relative; overflow:hidden; }
   .panel-label { font-size:13px; letter-spacing:3px; color:var(--teal); margin-bottom:12px; }
 
@@ -55,9 +56,11 @@
   @keyframes flashGreen { 0%{color:var(--teal-lite)} 100%{color:var(--green)} }
   .counter-unit  { font-size:11px; color:var(--teal-mid); letter-spacing:2px; }
   .counter-label { font-size:11px; color:var(--teal-dim); letter-spacing:1px; }
-
+</style>
+<style>
   /* 모델 적합도 */
   .model-fit-panel { display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+  .model-fit-scroll { flex:1; overflow-y:auto; }
   .mf-row { display:flex; align-items:center; gap:8px; padding:7px 6px; border-radius:5px; transition:background .3s; }
   .mf-row.winner {
     background: var(--teal-xlt);
@@ -69,17 +72,18 @@
     0%,100% { background: var(--teal-xlt); border-left-color: var(--green); }
     50%      { background: #a8dfd0;         border-left-color: var(--green-mid); }
   }
-  .mf-name { font-size:12px; color:var(--teal-mid); width:90px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .3s; }
+  .mf-name { font-size:12px; color:var(--teal-mid); width:110px; flex-shrink:0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; transition:color .3s; }
   .mf-row.winner .mf-name { color:var(--green); font-size:13px; }
   .mf-bar-bg  { flex:1; height:6px; background:var(--teal-dim2); border-radius:3px; overflow:hidden; }
   .mf-bar-fill { height:6px; border-radius:3px; width:0%; background:linear-gradient(90deg,var(--teal-mid),var(--teal-lite)); transition:width 1s cubic-bezier(.4,0,.2,1); }
   .mf-row.winner .mf-bar-fill { background:linear-gradient(90deg,var(--green),var(--green-mid)); }
-  .mf-score { font-size:12px; width:32px; text-align:right; flex-shrink:0; color:var(--teal-mid); transition:color .3s; }
+  .mf-score { font-size:12px; width:40px; text-align:right; flex-shrink:0; color:var(--teal-mid); transition:color .3s; }
   .mf-row.winner .mf-score { color:var(--green); font-size:13px; }
   .mf-star { font-size:13px; width:16px; flex-shrink:0; opacity:0; transition:opacity .4s; }
   .mf-row.winner .mf-star { opacity:1; animation:starPop .5s ease; }
   @keyframes starPop { 0%{transform:scale(0)} 60%{transform:scale(1.3)} 100%{transform:scale(1)} }
-
+</style>
+<style>
   /* 추천 모델 */
   .rec-card { border-top:2px solid var(--teal); }
   .mc-badge { font-size:12px; letter-spacing:3px; color:var(--teal-mid); margin-bottom:8px; }
@@ -99,7 +103,8 @@
   .stat-item { display:flex; flex-direction:column; gap:2px; }
   .stat-label { font-size:11px; letter-spacing:2px; color:var(--teal-mid); }
   .stat-val   { font-size:16px; color:var(--green); }
-
+</style>
+<style>
   /* 응답창 */
   .response-panel { display:flex; flex-direction:column; min-height:0; }
   .response-box { flex:1; min-height:0; background:var(--bg); border:1px solid var(--teal-dim); border-radius:4px; padding:16px; font-size:14px; color:var(--teal); line-height:2; overflow-y:auto; position:relative; white-space:pre-wrap; }
@@ -114,7 +119,8 @@
   .loading-bar-wrap { width:160px; height:3px; background:var(--teal-dim2); border-radius:2px; overflow:hidden; }
   .loading-bar { height:100%; width:0%; background:var(--teal-lite); border-radius:2px; animation:loadProgress 2s ease-in-out infinite; }
   @keyframes loadProgress { 0%{width:0%;opacity:1} 70%{width:90%;opacity:1} 100%{width:100%;opacity:0} }
-
+</style>
+<style>
   /* 입력 영역 */
   .input-row { display:grid; grid-template-columns:160px 160px 1fr auto; gap:10px; align-items:stretch; }
 
@@ -140,6 +146,7 @@
     border:1px solid var(--teal-dim); border-top:2px solid var(--teal);
     border-radius:6px; overflow:hidden; z-index:100;
     box-shadow:0 -4px 16px #0a5c5c18;
+    max-height:300px; overflow-y:auto;
   }
   .llm-dropdown.open { display:block; }
   .llm-opt {
@@ -151,7 +158,9 @@
   .llm-opt:last-child { border-bottom:none; }
   .llm-opt:hover { background:var(--teal-xlt); color:var(--teal); }
   .llm-opt.selected { color:var(--teal); background:var(--teal-dim2); }
-
+  .llm-opt.disabled-model { opacity:0.5; }
+</style>
+<style>
   /* 드롭다운 당선 모델 반짝 */
   .llm-opt.opt-winner {
     background: var(--teal-xlt);
@@ -180,18 +189,20 @@
   .inp { background:transparent; border:none; outline:none; font-family:'Share Tech Mono',monospace; font-size:15px; color:var(--teal); width:100%; }
   .inp::placeholder { color:var(--teal-dim); }
 
-  /* ── ANALYZE 버튼 — 절반 크기 ── */
+  /* ANALYZE 버튼 */
   .run-btn {
     background:var(--teal); border:none; border-radius:6px;
-    padding:0 14px;             /* 24 → 14 */
+    padding:0 14px;
     font-family:'Share Tech Mono',monospace;
-    font-size:11px;             /* 13 → 11 */
-    letter-spacing:1px;         /* 2 → 1 */
+    font-size:11px;
+    letter-spacing:1px;
     color:#fff; cursor:pointer; transition:background .15s; white-space:nowrap;
     border-top:2px solid var(--teal-mid);
   }
   .run-btn:hover { background:var(--teal-mid); }
   .run-btn:disabled { background:var(--teal-dim); cursor:not-allowed; }
+
+  .error-msg { color:#c0392b; font-size:12px; padding:8px; }
 </style>
 </head>
 <body>
@@ -199,14 +210,13 @@
 
   <div class="hdr">
     <div class="logo">ECO<span>ROUTE</span></div>
-    <div class="hdr-stat">● 온라인</div>
+    <div class="hdr-stat" id="hdrStat">● 연결 중...</div>
   </div>
 
   <div class="main">
     <div class="col-left">
 
       <div class="panel carbon-panel">
-        
         <div class="panel-label">▸ 탄소 영향</div>
         <div class="tree-gauge-wrap">
           <div class="tree-icon" id="treeIcon">🌳</div>
@@ -218,21 +228,21 @@
         </div>
         <div class="counters">
           <div class="counter-item">
-            <div class="counter-val" id="cntCo2">0.0</div>
+            <div class="counter-val" id="cntCo2">0.00</div>
             <div class="counter-unit">g CO₂</div>
-            <div class="counter-label">⚡ 이번 세션</div>
+            <div class="counter-label">⚡ 누적 절감</div>
           </div>
           <div class="counter-item">
-            <div class="counter-val" id="cntKm">0.0</div>
-            <div class="counter-unit">km</div>
-            <div class="counter-label">🚗 자동차 절감</div>
+            <div class="counter-val" id="cntTrees">0.000000</div>
+            <div class="counter-unit">그루</div>
+            <div class="counter-label">🌳 소나무 환산</div>
           </div>
         </div>
       </div>
 
       <div class="panel model-fit-panel">
-        <div class="panel-label">▸ 모델 적합도</div>
-        <div id="modelFitList"></div>
+        <div class="panel-label">▸ 모델 비교 (절감률)</div>
+        <div class="model-fit-scroll" id="modelFitList"></div>
       </div>
 
       <div class="panel rec-card">
@@ -243,7 +253,6 @@
       </div>
 
     </div>
-
     <div class="col-right">
 
       <div class="panel top-right-row">
@@ -255,22 +264,22 @@
         </div>
         <div class="stats-section">
           <div class="stat-item">
-            <div class="stat-label">오늘 세션 수</div>
-            <div class="stat-val">142</div>
+            <div class="stat-label">누적 절감 토큰</div>
+            <div class="stat-val" id="statTokens">0</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">누적 절감액</div>
-            <div class="stat-val">$18.34</div>
+            <div class="stat-val" id="statCost">$0.00</div>
           </div>
           <div class="stat-item">
             <div class="stat-label">탄소 감축량</div>
-            <div class="stat-val">44.1g</div>
+            <div class="stat-val" id="statCo2">0.0g</div>
           </div>
         </div>
       </div>
 
       <div class="panel response-panel">
-        <div class="panel-label">▸ 응답 &nbsp;<span style="color:var(--teal-mid);font-size:12px;" id="respModel">—</span></div>
+        <div class="panel-label">▸ 추천 결과 &nbsp;<span style="color:var(--teal-mid);font-size:12px;" id="respModel">—</span></div>
         <div class="response-box">
           <div class="loading-overlay" id="loadingOverlay">
             <div class="loading-dots">
@@ -281,18 +290,17 @@
             <div class="loading-text">분석 중</div>
             <div class="loading-bar-wrap"><div class="loading-bar"></div></div>
           </div>
-          <div id="responseContent"><div class="response-placeholder">LLM 질문에 대한 답</div></div>
+          <div id="responseContent"><div class="response-placeholder">프롬프트를 입력하고 분석하면<br>추천 모델과 절감 정보가 표시됩니다.</div></div>
         </div>
       </div>
-
       <div class="input-row">
 
-        <!-- 모델 선택 (1/2 크기) -->
+        <!-- 모델 선택 -->
         <div class="llm-select-wrap">
           <div class="llm-dropdown" id="llmDropdown"></div>
           <button class="model-select-btn" id="modelSelectBtn" onclick="toggleDropdown()">
-            <div class="msb-label">▸ 모델 선택</div>
-            <div class="msb-val" id="modelBtnVal">Haiku 4.5</div>
+            <div class="msb-label">▸ 현재 모델</div>
+            <div class="msb-val" id="modelBtnVal">로딩 중...</div>
             <div class="msb-arrow">▼ 변경</div>
           </button>
         </div>
@@ -313,44 +321,61 @@
         </div>
 
         <!-- 시작 버튼 -->
-        <button class="run-btn" id="runBtn" onclick="handleRun()">▶ 시작</button>
+        <button class="run-btn" id="runBtn" onclick="handleRun()">▶ 분석</button>
 
       </div>
 
     </div>
   </div>
 </div>
-
 <script>
+  /* ── Configuration ── */
+  const API_BASE = '';
 
-
-
-
-  /* ── 카테고리 ── */
-  const CAT_SCORES = {
-    coding:    [45, 95, 40, 88, 38, 80],
-    reasoning: [42, 90, 38, 85, 44, 88],
-    summary:   [92, 60, 85, 55, 88, 58],
-    chat:      [95, 55, 90, 50, 86, 52],
-    creative:  [50, 88, 55, 92, 48, 72],
-    data:      [48, 88, 50, 90, 46, 84],
-  };
-  let selectedCat = 'coding';
-
+  /* ── Category mapping (frontend → backend use_case_tag) ── */
   const CATS = [
-    { id:'coding',    label:'💻 코딩' },
-    { id:'reasoning', label:'🧠 추론' },
-    { id:'summary',   label:'📝 요약/정리' },
-    { id:'chat',      label:'💬 일반 대화' },
-    { id:'creative',  label:'🎨 창작' },
-    { id:'data',      label:'📊 데이터 분석' },
+    { id:'code_review',       label:'💻 코딩',       tag:'code_review' },
+    { id:'complex_reasoning', label:'🧠 추론',       tag:'complex_reasoning' },
+    { id:'summarize',         label:'📝 요약/정리',  tag:'summarize' },
+    { id:'chat',              label:'💬 일반 대화',   tag:'chat' },
+    { id:'creative',          label:'🎨 창작',       tag:'creative' },
+    { id:'simple_qa',         label:'❓ 간단 질문',  tag:'simple_qa' },
   ];
+  let selectedCat = CATS[0];
 
+  /* ── State ── */
+  let models = [];          // from GET /api/models (enabled only for selection)
+  let allModels = [];       // all models from API
+  let selectedModelName = '';
+  let recommendedModelName = '';
+  let totalCo2 = 0;        // grams
+  let totalCost = 0;       // USD
+  let totalTokens = 0;
+  let totalTrees = 0;      // 그루
+  let totalKm = 0;         // 자동차 km 환산
+
+  /* ── 탄소 배출 기준 (mgCO2/token, 한국 전력배출계수 0.4173kgCO2/kWh 기준) ── */
+  const CO2_MG_PER_TOKEN = {
+    'OpenAI':      0.699,  // GPT-5 short reasoning 기준
+    'Anthropic':   0.872,  // Claude-3.7 Sonnet 기준
+    'Google':      0.250,  // Gemini median text prompt 기준
+    'AWS Bedrock': 0.699,  // GPT 계열 근사
+  };
+  const CO2_MG_PER_TOKEN_DEFAULT = 0.699;   // 알 수 없는 프로바이더 기본값
+  const TREE_YEARLY_G = 6600;               // 소나무 1그루 연간 CO2 흡수량 (g)
+  const CAR_KM_G = 244;                     // 승용차 1km 주행 CO2 (g)
+
+  function getCo2MgPerToken(provider) {
+    return CO2_MG_PER_TOKEN[provider] || CO2_MG_PER_TOKEN_DEFAULT;
+  }
+</script>
+<script>
+  /* ── Category Dropdown ── */
   function renderCatDropdown() {
     const dd = document.getElementById('catDropdown');
     dd.innerHTML = CATS.map(c => `
-      <div class="llm-opt ${c.id === selectedCat ? 'selected' : ''}"
-           onclick="selectCat('${c.id}', '${c.label}')">
+      <div class="llm-opt ${c.id === selectedCat.id ? 'selected' : ''}"
+           onclick="selectCat('${c.id}')">
         ${c.label}
       </div>`).join('');
   }
@@ -359,77 +384,56 @@
   function toggleCatDropdown() {
     document.getElementById('catDropdown').classList.toggle('open');
   }
-  function selectCat(id, label) {
-    selectedCat = id;
-    document.getElementById('catBtnVal').textContent = label;
+  function selectCat(id) {
+    selectedCat = CATS.find(c => c.id === id);
+    document.getElementById('catBtnVal').textContent = selectedCat.label;
     renderCatDropdown();
     document.getElementById('catDropdown').classList.remove('open');
   }
 
-  const MODELS = [
-    { id:'claude-haiku-4-5',  label:'Haiku 4.5',   inputP:0.80,  outputP:4.00  },
-    { id:'claude-sonnet-4-6', label:'Sonnet 4.6',  inputP:3.00,  outputP:15.00 },
-    { id:'gpt-4o-mini',       label:'GPT-4o mini', inputP:0.15,  outputP:0.60  },
-    { id:'gpt-4o',            label:'GPT-4o',      inputP:2.50,  outputP:10.00 },
-    { id:'gemini-1.5-flash',  label:'Gem Flash',   inputP:0.075, outputP:0.30  },
-    { id:'gemini-1.5-pro',    label:'Gem Pro',     inputP:1.25,  outputP:5.00  },
-  ];
-
-  let selectedModelIdx = 0;
-  let winnerIdx = -1;  // 분석 전 -1, 분석 후 당선 인덱스
-
-  /* 드롭다운 렌더 */
+  /* ── Model Dropdown ── */
   const dropdown = document.getElementById('llmDropdown');
+
   function renderDropdown() {
-    dropdown.innerHTML = MODELS.map((m, i) => {
-      const isWinner   = winnerIdx !== -1 && i === winnerIdx;
-      const isSelected = i === selectedModelIdx;
+    dropdown.innerHTML = allModels.map(m => {
+      const isWinner = recommendedModelName && m.name === recommendedModelName;
+      const isSelected = m.name === selectedModelName;
+      const price = m.input_usd_per_1m_tokens !== null ? `$${m.input_usd_per_1m_tokens.toFixed(3)}/1M` : 'N/A';
+      const disabledCls = !m.enabled ? 'disabled-model' : '';
+      const statusTag = !m.enabled ? ' <span style="font-size:9px;color:#c0392b;">[비활성]</span>' : '';
       return `
-        <div class="llm-opt ${isSelected ? 'selected' : ''} ${isWinner ? 'opt-winner' : ''}"
-             onclick="selectModel(${i})">
+        <div class="llm-opt ${isSelected ? 'selected' : ''} ${isWinner ? 'opt-winner' : ''} ${disabledCls}"
+             onclick="selectModel('${m.name}')">
           <div class="llm-opt-left">
             <span class="opt-star">★</span>
-            <span>${m.label}</span>
+            <span>${m.display_name}${statusTag}</span>
           </div>
-          <span class="llm-opt-price">$${m.inputP.toFixed(3)}/1M</span>
+          <span class="llm-opt-price">${price}</span>
         </div>`;
     }).join('');
   }
-  renderDropdown();
 
-  function toggleDropdown() {
-    dropdown.classList.toggle('open');
-  }
-  function selectModel(idx) {
-    selectedModelIdx = idx;
-    document.getElementById('modelBtnVal').textContent = MODELS[idx].label;
+  function toggleDropdown() { dropdown.classList.toggle('open'); }
+  function selectModel(name) {
+    selectedModelName = name;
+    const m = allModels.find(x => x.name === name);
+    document.getElementById('modelBtnVal').textContent = m ? m.display_name : name;
     renderDropdown();
     dropdown.classList.remove('open');
   }
+
   document.addEventListener('click', e => {
     const wraps = document.querySelectorAll('.llm-select-wrap');
     wraps.forEach(w => {
       if (!w.contains(e.target)) {
-        w.querySelector('.llm-dropdown') && w.querySelector('.llm-dropdown').classList.remove('open');
+        const dd = w.querySelector('.llm-dropdown');
+        if (dd) dd.classList.remove('open');
       }
     });
   });
-
-  /* 모델 적합도 바 */
-  const listEl = document.getElementById('modelFitList');
-  MODELS.forEach((m, i) => {
-    listEl.innerHTML += `
-      <div class="mf-row" id="mfrow-${i}">
-        <span class="mf-star" id="mfstar-${i}">★</span>
-        <div class="mf-name">${m.label}</div>
-        <div class="mf-bar-bg"><div class="mf-bar-fill" id="mfbar-${i}"></div></div>
-        <div class="mf-score" id="mfscore-${i}">—</div>
-      </div>`;
-  });
-
-  let totalCo2 = 0, totalKm = 0;
-  const TREE_THRESHOLD = 22000;
-
+</script>
+<script>
+  /* ── Utility functions ── */
   function animateCount(el, from, to, dur, dec) {
     const t0 = performance.now();
     (function step(now) {
@@ -440,101 +444,309 @@
     })(t0);
   }
 
-  function updateCarbon(addCo2, addKm) {
-    const p2 = totalCo2, pK = totalKm;
-    totalCo2 += addCo2; totalKm += addKm;
+  function updateCarbon(co2Grams, trees, km) {
+    const prevCo2 = totalCo2;
+    const prevTrees = totalTrees;
+    totalCo2 += co2Grams;
+    totalTrees += trees;
+    totalKm += km;
     const co2El = document.getElementById('cntCo2');
-    const kmEl  = document.getElementById('cntKm');
+    const treeEl = document.getElementById('cntTrees');
     co2El.classList.remove('flash'); void co2El.offsetWidth; co2El.classList.add('flash');
-    kmEl.classList.remove('flash');  void kmEl.offsetWidth;  kmEl.classList.add('flash');
-    animateCount(co2El, p2, totalCo2, 1200, 1);
-    animateCount(kmEl,  pK, totalKm,  1200, 1);
-    const pct = Math.min((totalCo2 % TREE_THRESHOLD) / TREE_THRESHOLD * 100, 100);
+    treeEl.classList.remove('flash'); void treeEl.offsetWidth; treeEl.classList.add('flash');
+    animateCount(co2El, prevCo2, totalCo2, 1200, 2);
+    animateCount(treeEl, prevTrees, totalTrees, 1200, 6);
+    // 게이지: 소나무 1그루(6600g) 기준 진행률
+    const pct = Math.min((totalCo2 % TREE_YEARLY_G) / TREE_YEARLY_G * 100, 100);
     document.getElementById('gaugeFill').style.width = pct + '%';
-    animateCount(document.getElementById('gaugePct'), 0, Math.round(pct), 1200, 0);
+    document.getElementById('gaugePct').textContent = Math.round(pct);
     const tEl = document.getElementById('treeIcon');
     tEl.classList.remove('pulse'); void tEl.offsetWidth; tEl.classList.add('pulse');
   }
 
-  function updateModelFit(scores) {
-    const maxScore = Math.max(...scores);
-    winnerIdx = scores.indexOf(maxScore);
-    MODELS.forEach((m, i) => {
-      document.getElementById('mfrow-' + i).classList.remove('winner');
-      setTimeout(() => {
-        document.getElementById('mfbar-' + i).style.width = scores[i] + '%';
-        document.getElementById('mfscore-' + i).textContent = scores[i];
-      }, 100);
-    });
-    setTimeout(() => {
-      document.getElementById('mfrow-' + winnerIdx).classList.add('winner');
-      renderDropdown(); // 드롭다운에도 반짝 반영
-    }, 1200);
-    return winnerIdx;
-  }
-
-  function updateCost(saved, pct) {
-    document.getElementById('costNum').textContent = '$' + saved.toFixed(3) + ' saved';
+  function updateCost(savedUsd, pct) {
+    totalCost += savedUsd;
+    document.getElementById('costNum').textContent = '$' + totalCost.toFixed(4) + ' saved';
     document.getElementById('costPct').textContent = pct.toFixed(1) + '% cheaper';
-    setTimeout(() => { document.getElementById('costBar').style.width = pct + '%'; }, 100);
+    setTimeout(() => { document.getElementById('costBar').style.width = Math.min(pct, 100) + '%'; }, 100);
   }
 
-  function updateRecommended(idx, cost) {
-    const m = MODELS[idx];
-    document.getElementById('recName').innerHTML = m.label + ' <span class="tag">최적</span>';
-    document.getElementById('recStat').innerHTML =
-      'INPUT &nbsp;&nbsp;$' + m.inputP.toFixed(3) + ' / 1M<br>' +
-      'OUTPUT $' + m.outputP.toFixed(2) + ' / 1M<br>' +
-      'FIT &nbsp;&nbsp;&nbsp;&nbsp;<span style="color:var(--green);">적합 ✓</span>';
-    document.getElementById('recCost').textContent = '$' + cost.toFixed(3);
-    document.getElementById('respModel').textContent = m.id;
+  function updateStats() {
+    document.getElementById('statTokens').textContent = totalTokens.toLocaleString();
+    document.getElementById('statCost').textContent = '$' + totalCost.toFixed(4);
+    document.getElementById('statCo2').textContent = totalCo2.toFixed(3) + 'g';
+  }
+</script>
+<script>
+  /* ── Model Comparison Panel ── */
+  function renderModelFitList(comparisonItems) {
+    const listEl = document.getElementById('modelFitList');
+    if (!comparisonItems || comparisonItems.length === 0) {
+      listEl.innerHTML = '<div style="padding:12px;color:var(--teal-dim);font-size:12px;">비교 결과가 없습니다.</div>';
+      return;
+    }
+    // Show all comparison results
+    const items = comparisonItems;
+    const maxRate = Math.max(...items.map(i => i.estimated_savings_rate));
+
+    listEl.innerHTML = items.map((item, i) => {
+      const pct = (item.estimated_savings_rate * 100).toFixed(1);
+      const barW = maxRate > 0 ? (item.estimated_savings_rate / maxRate * 100) : 0;
+      const isWinner = i === 0 && item.estimated_savings_rate > 0;
+      return `
+        <div class="mf-row ${isWinner ? 'winner' : ''}" id="mfrow-${i}">
+          <span class="mf-star">★</span>
+          <div class="mf-name" title="${item.name}">${item.display_name}</div>
+          <div class="mf-bar-bg"><div class="mf-bar-fill" style="width:${barW}%"></div></div>
+          <div class="mf-score">${pct}%</div>
+        </div>`;
+    }).join('');
+
+    // Set recommended model (top savings)
+    if (items[0] && items[0].estimated_savings_rate > 0) {
+      recommendedModelName = items[0].name;
+      renderDropdown();
+    }
   }
 
+  function updateRecommended(recData) {
+    const m = allModels.find(x => x.name === recData.recommended_model);
+    const displayName = m ? m.display_name : recData.recommended_model;
+    document.getElementById('recName').innerHTML = displayName + ' <span class="tag">최적</span>';
+
+    const savingsStr = (recData.estimated_savings_rate * 100).toFixed(1);
+    let statHtml = '';
+    if (m) {
+      const inputP = m.input_usd_per_1m_tokens !== null ? '$' + m.input_usd_per_1m_tokens.toFixed(3) : 'N/A';
+      const outputP = m.output_usd_per_1m_tokens !== null ? '$' + m.output_usd_per_1m_tokens.toFixed(2) : 'N/A';
+      statHtml = `INPUT &nbsp;&nbsp;${inputP} / 1M<br>OUTPUT ${outputP} / 1M<br>`;
+    }
+    statHtml += `절감률 &nbsp;<span style="color:var(--green);">${savingsStr}% ✓</span>`;
+    document.getElementById('recStat').innerHTML = statHtml;
+    document.getElementById('recCost').textContent = savingsStr + '% 절감';
+    document.getElementById('respModel').textContent = recData.recommended_model;
+    recommendedModelName = recData.recommended_model;
+    renderDropdown();
+  }
+</script>
+<script>
+  /* ── API Calls ── */
+  async function loadModels() {
+    try {
+      const res = await fetch(`${API_BASE}/api/models/`);
+      const json = await res.json();
+      // Envelope: { success: true, data: [...] }
+      allModels = json.data || json;
+      models = allModels.filter(m => m.enabled);
+
+      if (models.length > 0) {
+        // Default to first expensive model (flagship) for demo
+        const flagship = models.find(m => m.category === 'flagship') || models[0];
+        selectedModelName = flagship.name;
+        document.getElementById('modelBtnVal').textContent = flagship.display_name;
+      }
+      renderDropdown();
+      document.getElementById('hdrStat').textContent = '● 온라인';
+      document.getElementById('hdrStat').style.color = 'var(--green)';
+    } catch (err) {
+      console.error('Failed to load models:', err);
+      document.getElementById('hdrStat').textContent = '● 오프라인';
+      document.getElementById('hdrStat').style.color = '#c0392b';
+    }
+  }
+
+  async function loadStats() {
+    try {
+      const res = await fetch(`${API_BASE}/api/stats`);
+      const json = await res.json();
+      const data = json.data || json;
+      totalTokens = data.total_saved_tokens || 0;
+      totalCost = data.total_saved_cost_usd || 0;
+      totalCo2 = (data.total_saved_co2_kg || 0) * 1000; // kg → g
+      totalTrees = totalCo2 / TREE_YEARLY_G;
+      totalKm = totalCo2 / CAR_KM_G;
+      document.getElementById('cntCo2').textContent = totalCo2.toFixed(2);
+      document.getElementById('cntTrees').textContent = totalTrees.toFixed(6);
+      updateStats();
+    } catch (err) {
+      console.error('Failed to load stats:', err);
+    }
+  }
+
+  async function callRecommend(prompt, useCase, currentModel) {
+    const res = await fetch(`${API_BASE}/api/recommend`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        prompt: prompt,
+        use_case_tag: useCase,
+        current_model: currentModel,
+      }),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.message || json.error?.message || 'Recommend API error');
+    return json.data || json;
+  }
+
+  async function callCompare(currentModel, useCase) {
+    const body = { current_model: currentModel };
+    if (useCase) body.use_case_tag = useCase;
+    const res = await fetch(`${API_BASE}/api/models/compare`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    const json = await res.json();
+    if (!res.ok) throw new Error(json.message || json.error?.message || 'Compare API error');
+    return json.data || json;
+  }
+</script>
+<script>
+  /* ── Main Analysis Handler ── */
   async function handleRun() {
     const prompt = document.getElementById('promptInp').value.trim();
     if (!prompt) return;
+    if (!selectedModelName) {
+      alert('모델을 먼저 선택하세요.');
+      return;
+    }
+
     const btn = document.getElementById('runBtn');
-    btn.disabled = true; btn.textContent = '... 분석 중';
+    btn.disabled = true;
+    btn.textContent = '... 분석 중';
     document.getElementById('loadingOverlay').classList.add('active');
     document.getElementById('responseContent').innerHTML = '<div class="response-placeholder">분석 중...</div>';
-    MODELS.forEach((m, i) => {
-      document.getElementById('mfrow-' + i).classList.remove('winner');
-      document.getElementById('mfbar-' + i).style.width = '0%';
-      document.getElementById('mfscore-' + i).textContent = '—';
-    });
-    winnerIdx = -1;
-    renderDropdown();
+    recommendedModelName = '';
 
-    await new Promise(r => setTimeout(r, 2000));
+    try {
+      // Call both APIs in parallel
+      const [recResult, compareResult] = await Promise.all([
+        callRecommend(prompt, selectedCat.tag, selectedModelName),
+        callCompare(selectedModelName, selectedCat.tag),
+      ]);
 
-    const scores     = CAT_SCORES[selectedCat] || (prompt.length > 30 ? [52,91,48,78,44,85] : [94,61,88,55,82,58]);
-    const isComplex  = scores.indexOf(Math.max(...scores)) !== 0;
-    const idx       = updateModelFit(scores);
-    updateRecommended(idx, isComplex ? 0.040 : 0.003);
-    updateCost(isComplex ? 0.012 : 0.049, isComplex ? 45.0 : 94.2);
-    updateCarbon(isComplex ? 0.4 : 1.2, isComplex ? 0.3 : 0.8);
+      // Update recommendation panel
+      updateRecommended(recResult);
 
-    const mockResp = isComplex
-      ? '복잡한 추론이 필요한 작업으로 판단되어 Sonnet 모델을 배정했습니다.\n\n입력하신 내용을 심층 분석합니다.'
-      : '계약서 3페이지의 주요 내용 요약입니다.\n\n1. 납기일은 2026년 8월 31일입니다.\n2. 위약금은 계약금의 20%입니다.\n3. 관할 법원은 서울중앙지방법원입니다.';
+      // Update model comparison panel
+      renderModelFitList(compareResult);
 
-    document.getElementById('loadingOverlay').classList.remove('active');
-    const respEl = document.getElementById('responseContent');
-    respEl.textContent = '';
-    let i = 0;
-    const typing = setInterval(() => {
-      respEl.textContent += mockResp[i++];
-      if (i >= mockResp.length) {
-        clearInterval(typing);
-        btn.disabled = false;
-        btn.textContent = '▶ 시작';
+      // Calculate savings for display
+      const savingsRate = recResult.estimated_savings_rate;
+      const currentModel = allModels.find(m => m.name === selectedModelName);
+      const recModel = allModels.find(m => m.name === recResult.recommended_model);
+
+      // 토큰 추정: 한국어는 글자당 ~2-3 토큰, 영어는 ~1.3 토큰. 보수적으로 1.5 사용
+      const estimatedInputTokens = Math.max(prompt.length * 2, 100);
+      const estimatedOutputTokens = estimatedInputTokens * 2; // 응답이 보통 2배
+      const estimatedTotalTokens = estimatedInputTokens + estimatedOutputTokens;
+
+      let savedCostUsd = 0;
+      let savedCo2G = 0;
+      let savedTrees = 0;
+      let savedKm = 0;
+
+      if (currentModel && recModel && savingsRate > 0) {
+        // 비용 절감: (현재 - 추천) × 토큰
+        const currentCostPer1M = currentModel.input_usd_per_1m_tokens || 0;
+        const recCostPer1M = recModel.input_usd_per_1m_tokens || 0;
+        savedCostUsd = (currentCostPer1M - recCostPer1M) * estimatedTotalTokens / 1_000_000;
+
+        // 탄소 절감: 프로바이더별 mgCO2/token 기준
+        const currentCo2PerToken = getCo2MgPerToken(currentModel.provider); // mg
+        const recCo2PerToken = getCo2MgPerToken(recModel.provider);         // mg
+        const co2DiffPerToken = currentCo2PerToken - recCo2PerToken;        // mg
+
+        if (co2DiffPerToken > 0) {
+          // 절감된 CO2 (mg → g)
+          savedCo2G = (co2DiffPerToken * estimatedTotalTokens) / 1000;
+        } else {
+          // 추천 모델이 더 비싼 프로바이더라도, 토큰 절감 효과로 계산
+          // 같은 프로바이더면 비용 절감률만큼 토큰을 덜 쓰는 것으로 간주
+          savedCo2G = (currentCo2PerToken * estimatedTotalTokens * savingsRate) / 1000;
+        }
+
+        // 소나무 환산: 6,600g CO2 = 소나무 1그루/년
+        savedTrees = savedCo2G / TREE_YEARLY_G;
+        // 자동차 환산: 244g CO2 = 1km
+        savedKm = savedCo2G / CAR_KM_G;
+        // 누적 토큰
+        totalTokens += Math.round(estimatedTotalTokens * savingsRate);
       }
-    }, 18);
+
+      // Update UI panels
+      if (savedCostUsd > 0) {
+        updateCost(savedCostUsd, savingsRate * 100);
+      }
+      if (savedCo2G > 0) {
+        updateCarbon(savedCo2G, savedTrees, savedKm);
+      }
+      updateStats();
+
+      // Display response
+      document.getElementById('loadingOverlay').classList.remove('active');
+      const respEl = document.getElementById('responseContent');
+      const responseText = buildResponseText(recResult, compareResult, currentModel);
+      respEl.textContent = '';
+      let i = 0;
+      const typing = setInterval(() => {
+        respEl.textContent += responseText[i++];
+        if (i >= responseText.length) {
+          clearInterval(typing);
+          btn.disabled = false;
+          btn.textContent = '▶ 분석';
+        }
+      }, 12);
+
+    } catch (err) {
+      document.getElementById('loadingOverlay').classList.remove('active');
+      document.getElementById('responseContent').innerHTML =
+        `<div class="error-msg">⚠️ 오류: ${err.message}</div>`;
+      btn.disabled = false;
+      btn.textContent = '▶ 분석';
+    }
+  }
+</script>
+<script>
+  /* ── Build response text ── */
+  function buildResponseText(recResult, compareResult, currentModel) {
+    let text = '';
+    text += `📌 추천 모델: ${recResult.recommended_model}\n`;
+    text += `💡 이유: ${recResult.reason}\n`;
+    text += `💰 절감률: ${(recResult.estimated_savings_rate * 100).toFixed(1)}%\n\n`;
+
+    if (compareResult && compareResult.length > 0) {
+      text += `📊 대안 모델 (${selectedCat.label} 기준, ${compareResult.length}개):\n`;
+      text += `${'─'.repeat(40)}\n`;
+      compareResult.forEach((item, i) => {
+        const savings = (item.estimated_savings_rate * 100).toFixed(1);
+        const diffIn = item.cost_difference_input >= 0 ? '+' : '';
+        text += `${i + 1}. ${item.display_name} (${item.provider})\n`;
+        text += `   절감률: ${savings}% | 입력가격차: ${diffIn}$${item.cost_difference_input.toFixed(3)}/1M\n`;
+        if (item.strengths.length > 0) {
+          text += `   강점: ${item.strengths.join(', ')}\n`;
+        }
+        text += '\n';
+      });
+    }
+
+    if (currentModel) {
+      text += `\n현재 모델: ${currentModel.display_name} ($${(currentModel.input_usd_per_1m_tokens || 0).toFixed(3)}/1M input)`;
+    }
+    return text;
   }
 
+  /* ── Enter key handler ── */
   document.getElementById('promptInp').addEventListener('keydown', e => {
     if (e.key === 'Enter') handleRun();
   });
+
+  /* ── Initialize ── */
+  async function init() {
+    await loadModels();
+    await loadStats();
+  }
+  init();
 </script>
 </body>
 </html>
