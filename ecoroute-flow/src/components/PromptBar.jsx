@@ -63,7 +63,7 @@ export default function PromptBar({ onGenerate, generating }) {
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
-            placeholder="어떤 작업을 하고 싶으신가요? 자연어로 입력하면 최적의 AI 파이프라인을 추천해드립니다."
+            placeholder="어떤 작업을 하고 싶으신가요? 현재 파이프라인을 분석하여 최적의 구성을 추천해드립니다."
             style={{
               flex: 1, background: 'transparent', border: 'none',
               outline: 'none', fontSize: 14, color: '#e2e8f0',
@@ -85,7 +85,7 @@ export default function PromptBar({ onGenerate, generating }) {
             transition: 'all .15s', whiteSpace: 'nowrap',
           }}
         >
-          {generating ? '생성 중...' : '▶ 파이프라인 생성'}
+          {generating ? '분석 중...' : '▶ 최적화 추천'}
         </button>
       </div>
     </div>

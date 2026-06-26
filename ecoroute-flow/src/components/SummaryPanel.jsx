@@ -3,15 +3,25 @@ const ROLE_LABELS = {
   reviewer: '리뷰어', summarizer: '서머라이저', critic: '크리틱', custom: '커스텀',
 }
 
-export default function SummaryPanel({ nodes, totalCost, co2, trees, calcCost }) {
+export default function SummaryPanel({ nodes, totalCost, co2, trees, calcCost, analysis }) {
   const sorted = [...nodes].sort((a, b) =>
     calcCost(b.data.model, b.data.inputTokens, b.data.outputTokens, b.data.callCount || 1) -
     calcCost(a.data.model, a.data.inputTokens, a.data.outputTokens, a.data.callCount || 1)
   )
-  const bottleneck = sorted[0]
-  const totalTokens   = nodes.reduce((sum, n) => sum + (n.data.inputTokens + n.data.outputTokens) * (n.data.callCount || 1), 0)
+
+  // 백엔드 분석 결과에서 bottleneck 노드 확인
+  const bottleneckId = analysis?.bottleneck_node_id
+  const bottleneck = bottleneckId
+    ? nodes.find(n => n.id === bottleneckId) || sorted[0]
+    : sorted[0]
+
+  const totalTokens   = analysis?.summary?.total_tokens
+    ?? nodes.reduce((sum, n) => sum + (n.data.inputTokens + n.data.outputTokens) * (n.data.callCount || 1), 0)
   const totalCalls    = nodes.reduce((sum, n) => sum + (n.data.callCount || 1), 0)
   const avgNodeCost   = nodes.length > 0 ? totalCost / nodes.length : 0
+
+  // 자동차 km 환산 (백엔드에서 제공)
+  const carKm = analysis?.summary?.car_km_equivalent
 
   return (
     <div style={{
@@ -26,6 +36,12 @@ export default function SummaryPanel({ nodes, totalCost, co2, trees, calcCost })
       <Divider />
       <Cell label="나무 환산" value={`🌳 ×${trees.toFixed(6)}`} color="var(--teal-lite)" />
       <Divider />
+      {carKm != null && (
+        <>
+          <Cell label="자동차 환산" value={`🚗 ${carKm.toFixed(4)}km`} color="var(--teal-lite)" />
+          <Divider />
+        </>
+      )}
       <Cell label="총 토큰 수" value={totalTokens.toLocaleString()} color="var(--teal-mid)" />
       <Divider />
       <Cell label="총 호출 수" value={`${totalCalls}회`} color="var(--teal-mid)" />
@@ -35,7 +51,7 @@ export default function SummaryPanel({ nodes, totalCost, co2, trees, calcCost })
       <Cell label="노드 수" value={`${nodes.length}개`} color="var(--teal-mid)" />
       <Divider />
       <Cell
-        label="최고 비용 노드"
+        label="병목 노드"
         value={bottleneck ? `${ROLE_LABELS[bottleneck.data.role]}` : '—'}
         color="var(--teal)"
         sub={bottleneck ? `${bottleneck.data.model}\n$${calcCost(bottleneck.data.model, bottleneck.data.inputTokens, bottleneck.data.outputTokens, bottleneck.data.callCount || 1).toFixed(6)}` : ''}

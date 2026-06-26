@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import {
   ReactFlow,
   addEdge,
@@ -15,6 +15,7 @@ import TopBar from './components/TopBar'
 import SummaryPanel from './components/SummaryPanel'
 import PromptBar from './components/PromptBar'
 import ComparePanel from './components/ComparePanel'
+import { fetchModels, fetchRoles, analyzeHarness, recommendHarness, toHarnessGraph, fromRecommendResponse, toFrontendModelName } from './api'
 
 const nodeTypes = { agentNode: AgentNode }
 
@@ -28,131 +29,28 @@ export const ROLE_TOKENS = {
   custom:       { inputTokens: 400, outputTokens: 200, callCount: 1 },
 }
 
+// 기본 가격 (API 로드 전 폴백)
 export const MODEL_PRICES = {
   'claude-opus-4':    { input: 15.0,  output: 75.0  },
   'claude-sonnet-4':  { input: 3.0,   output: 15.0  },
   'claude-haiku-3-5': { input: 0.8,   output: 4.0   },
   'gpt-4o':           { input: 2.5,   output: 10.0  },
   'gpt-4o-mini':      { input: 0.15,  output: 0.6   },
+  'gpt-4.1':          { input: 2.0,   output: 8.0   },
+  'gpt-4.1-mini':     { input: 0.4,   output: 1.6   },
+  'gpt-4.1-nano':     { input: 0.1,   output: 0.4   },
+  'gpt-5':            { input: 1.25,  output: 10.0  },
+  'gpt-5-mini':       { input: 0.25,  output: 2.0   },
+  'o3':               { input: 2.0,   output: 8.0   },
   'o3-mini':          { input: 1.1,   output: 4.4   },
+  'o4-mini':          { input: 1.1,   output: 4.4   },
   'gemini-2.0-flash': { input: 0.1,   output: 0.4   },
 }
 
-export function calcCost(model, inputTokens, outputTokens, callCount = 1) {
-  const price = MODEL_PRICES[model]
+export function calcCost(model, inputTokens, outputTokens, callCount = 1, prices = MODEL_PRICES) {
+  const price = prices[model]
   if (!price) return 0
   return ((inputTokens / 1_000_000 * price.input) + (outputTokens / 1_000_000 * price.output)) * callCount
-}
-
-const ROLE_BEST_MODEL = {
-  orchestrator: { model: 'claude-sonnet-4',  reason: 'Orchestrator는 전체 파이프라인을 지휘하는 역할로, 복잡한 추론보다 명확한 지시와 계획이 중요합니다. Claude Sonnet 4는 instruction following과 전체적인 흐름 파악에 강점이 있으며, Opus 대비 80% 저렴합니다.' },
-  planner:      { model: 'gpt-4o-mini',      reason: 'Planner는 구체적인 실행 계획을 수립하는 역할입니다. 창의성보다 논리적 구조화가 중요하므로, GPT-4o-mini처럼 빠르고 저렴한 모델로도 충분한 품질을 낼 수 있습니다.' },
-  executor:     { model: 'claude-haiku-3-5', reason: 'Executor는 반복적인 실행 작업을 담당합니다. 고성능 모델이 필요하지 않으며, Claude Haiku는 빠른 응답속도와 낮은 비용으로 동일한 작업을 약 85% 저렴하게 처리합니다.' },
-  reviewer:     { model: 'gpt-4o-mini',      reason: 'Reviewer는 결과물의 품질을 검토하는 역할입니다. 정확한 판단이 필요하지만 최고급 모델까지는 필요하지 않습니다. GPT-4o-mini는 리뷰 작업에서 비용 대비 우수한 성능을 보입니다.' },
-  summarizer:   { model: 'gemini-2.0-flash', reason: 'Summarizer는 핵심 내용을 정리하는 단순한 역할입니다. Gemini 2.0 Flash는 요약 작업에 최적화되어 있으며, 가장 저렴한 비용으로 빠른 처리가 가능합니다.' },
-  critic:       { model: 'gpt-4o',           reason: 'Critic은 결과물의 약점을 날카롭게 분석하는 역할로, 깊은 추론 능력이 필요합니다. GPT-4o는 비판적 분석에서 높은 정확도를 보이며, Opus 대비 합리적인 비용입니다.' },
-  custom:       { model: 'claude-haiku-3-5', reason: '커스텀 역할의 경우 기본적으로 경량 모델을 추천합니다. 역할의 특성에 따라 수동으로 모델을 변경하세요.' },
-}
-
-function generateOptimal(currentNodes) {
-  return currentNodes.map(node => {
-    const best = ROLE_BEST_MODEL[node.data.role] || ROLE_BEST_MODEL.custom
-    const changed = node.data.model !== best.model
-    return {
-      ...node,
-      data: {
-        ...node.data,
-        model: best.model,
-        isOptimal: true,
-        changed,
-        changeReason: changed ? best.reason : '현재 선택하신 모델이 이 역할에 최적입니다.',
-        originalModel: node.data.model,
-      }
-    }
-  })
-}
-
-function generatePipeline(prompt) {
-  const p = prompt.toLowerCase()
-  const isCode     = p.includes('코드') || p.includes('프로그램') || p.includes('구현') || p.includes('code')
-  const isAnalysis = p.includes('분석') || p.includes('리스크') || p.includes('검토') || p.includes('법')
-  const isCreative = p.includes('작성') || p.includes('글') || p.includes('보고서') || p.includes('기획')
-  const isSimple   = p.includes('요약') || p.includes('번역') || p.includes('정리')
-
-  let template
-
-  if (isCode) {
-    template = {
-      nodes: [
-        { role: 'orchestrator', model: 'claude-sonnet-4',  label: 'Orchestrator' },
-        { role: 'planner',      model: 'gpt-4o-mini',      label: 'Planner'      },
-        { role: 'executor',     model: 'claude-haiku-3-5', label: 'Executor'     },
-        { role: 'reviewer',     model: 'gpt-4o',           label: 'Reviewer'     },
-      ],
-      edges: [[0,1],[0,2],[1,3],[2,3]],
-    }
-  } else if (isAnalysis) {
-    template = {
-      nodes: [
-        { role: 'orchestrator', model: 'claude-sonnet-4',  label: 'Orchestrator' },
-        { role: 'planner',      model: 'claude-sonnet-4',  label: 'Planner'      },
-        { role: 'executor',     model: 'gpt-4o-mini',      label: 'Executor'     },
-        { role: 'critic',       model: 'gpt-4o',           label: 'Critic'       },
-        { role: 'reviewer',     model: 'claude-haiku-3-5', label: 'Reviewer'     },
-      ],
-      edges: [[0,1],[1,2],[2,3],[3,4]],
-    }
-  } else if (isCreative) {
-    template = {
-      nodes: [
-        { role: 'orchestrator', model: 'claude-sonnet-4',  label: 'Orchestrator' },
-        { role: 'planner',      model: 'gpt-4o-mini',      label: 'Planner'      },
-        { role: 'executor',     model: 'claude-sonnet-4',  label: 'Executor'     },
-        { role: 'reviewer',     model: 'claude-haiku-3-5', label: 'Reviewer'     },
-        { role: 'summarizer',   model: 'gemini-2.0-flash', label: 'Summarizer'   },
-      ],
-      edges: [[0,1],[1,2],[2,3],[3,4]],
-    }
-  } else if (isSimple) {
-    template = {
-      nodes: [
-        { role: 'orchestrator', model: 'claude-haiku-3-5', label: 'Orchestrator' },
-        { role: 'executor',     model: 'gemini-2.0-flash', label: 'Executor'     },
-        { role: 'summarizer',   model: 'claude-haiku-3-5', label: 'Summarizer'   },
-      ],
-      edges: [[0,1],[1,2]],
-    }
-  } else {
-    template = {
-      nodes: [
-        { role: 'orchestrator', model: 'claude-sonnet-4',  label: 'Orchestrator' },
-        { role: 'executor',     model: 'claude-haiku-3-5', label: 'Executor'     },
-        { role: 'reviewer',     model: 'gpt-4o-mini',      label: 'Reviewer'     },
-      ],
-      edges: [[0,1],[1,2]],
-    }
-  }
-
-  const cols = Math.ceil(template.nodes.length / 2)
-  const newNodes = template.nodes.map((n, i) => ({
-    id: String(Date.now() + i),
-    type: 'agentNode',
-    position: {
-      x: 120 + (i % cols) * 280,
-      y: 150 + Math.floor(i / cols) * 220,
-    },
-    data: { ...n, ...ROLE_TOKENS[n.role] },
-  }))
-
-  const newEdges = template.edges.map(([s, t], i) => ({
-    id: `e-gen-${Date.now()}-${i}`,
-    source: newNodes[s].id,
-    target: newNodes[t].id,
-    animated: true,
-    style: { stroke: '#2cbfbf' },
-  }))
-
-  return { nodes: newNodes, edges: newEdges }
 }
 
 const INITIAL_NODES = [
@@ -177,6 +75,69 @@ export default function App() {
   const [hasGenerated, setHasGenerated] = useState(false)
   const [showCompare, setShowCompare]   = useState(false)
   const [optimalNodes, setOptimalNodes] = useState([])
+  const [optimalEdges, setOptimalEdges] = useState([])
+  const [improvementMetrics, setImprovementMetrics] = useState(null)
+
+  // 백엔드에서 가져온 모델 가격 정보
+  const [modelPrices, setModelPrices] = useState(MODEL_PRICES)
+  const [modelList, setModelList]     = useState([])
+  const [roles, setRoles]             = useState([])
+
+  // 백엔드 분석 결과
+  const [analysis, setAnalysis] = useState(null)
+
+  // 분석 디바운스 ref
+  const analyzeTimeout = useRef(null)
+
+  // 초기 로딩: 모델 목록 및 역할 정보를 백엔드에서 가져옴
+  useEffect(() => {
+    fetchModels()
+      .then(models => {
+        setModelList(models)
+        // API 모델 데이터로 가격표 업데이트
+        const prices = { ...MODEL_PRICES }
+        models.forEach(m => {
+          if (m.input_usd_per_1m_tokens != null && m.output_usd_per_1m_tokens != null) {
+            // 백엔드 이름과 프론트엔드 이름 모두에 가격 매핑
+            prices[m.name] = {
+              input: m.input_usd_per_1m_tokens,
+              output: m.output_usd_per_1m_tokens,
+            }
+            const frontendName = toFrontendModelName(m.name)
+            if (frontendName !== m.name) {
+              prices[frontendName] = prices[m.name]
+            }
+          }
+        })
+        setModelPrices(prices)
+      })
+      .catch(err => console.warn('모델 목록 로드 실패, 기본값 사용:', err))
+
+    fetchRoles()
+      .then(setRoles)
+      .catch(err => console.warn('역할 정보 로드 실패:', err))
+  }, [])
+
+  // 노드/엣지 변경 시 백엔드로 분석 요청 (디바운스)
+  useEffect(() => {
+    if (nodes.length === 0) return
+    if (analyzeTimeout.current) clearTimeout(analyzeTimeout.current)
+
+    analyzeTimeout.current = setTimeout(() => {
+      const graph = toHarnessGraph('current-pipeline', nodes, edges)
+      analyzeHarness(graph)
+        .then(result => setAnalysis(result))
+        .catch(err => console.warn('분석 요청 실패:', err))
+    }, 500)
+
+    return () => {
+      if (analyzeTimeout.current) clearTimeout(analyzeTimeout.current)
+    }
+  }, [nodes, edges])
+
+  const calcCostWithPrices = useCallback((model, inputTokens, outputTokens, callCount = 1) => {
+    return calcCost(model, inputTokens, outputTokens, callCount, modelPrices)
+  }, [modelPrices])
 
   const onConnect = useCallback(
     (params) => setEdges((eds) => addEdge({ ...params, animated: true, style: { stroke: '#2cbfbf' } }, eds)),
@@ -216,33 +177,107 @@ export default function App() {
     setSelected(null)
   }, [setNodes, setEdges])
 
-  const handleGenerate = useCallback((prompt) => {
+  // 파이프라인 생성 — 현재 유저 파이프라인을 백엔드에 보내 LLM 추천을 받음
+  // 유저의 그래프는 그대로 유지하고, 추천 결과만 저장해서 비교 가능하게 함
+  const handleGenerate = useCallback(async (prompt) => {
     setGenerating(true)
     setSelected(null)
     setShowCompare(false)
-    setTimeout(() => {
-      const { nodes: newNodes, edges: newEdges } = generatePipeline(prompt)
-      setNodes(newNodes)
-      setEdges(newEdges)
-      setOptimalNodes(generateOptimal(newNodes))
+
+    try {
+      // 현재 그래프를 분석
+      const graph = toHarnessGraph(prompt || 'user-pipeline', nodes, edges)
+      const analysisResult = await analyzeHarness(graph)
+
+      // 분석 결과 + 프롬프트로 최적화 추천 요청
+      const recommendation = await recommendHarness({
+        graph,
+        analysis_result: analysisResult,
+        optimization_goal: 'balanced',
+      })
+
+      const { nodes: recNodes, edges: recEdges, improvement_metrics } = fromRecommendResponse(recommendation, nodes)
+
+      // 추천 노드에 변경 표시 추가 (ECOCACHE reason/answer 포함)
+      const optNodes = recNodes.map(rn => {
+        const original = nodes.find(n => n.id === rn.id)
+        const changed = original ? original.data.model !== rn.data.model : true
+        return {
+          ...rn,
+          data: {
+            ...rn.data,
+            isOptimal: true,
+            changed,
+            originalModel: original?.data.model,
+            changeReason: rn.data.reason || (changed ? `비용과 탄소 절감을 위해 ${rn.data.model}로 변경을 추천합니다.` : '현재 모델이 최적입니다.'),
+            answer: rn.data.answer || null,
+          },
+        }
+      })
+
+      setOptimalNodes(optNodes)
+      setOptimalEdges(recEdges)
+      setImprovementMetrics(improvement_metrics)
       setHasGenerated(true)
+    } catch (err) {
+      console.error('추천 요청 실패:', err)
+      // 폴백: 클라이언트 측 최적화 로직
+      const ROLE_BEST_MODEL = {
+        orchestrator: 'claude-sonnet-4',
+        planner: 'gpt-4o-mini',
+        executor: 'claude-haiku-3-5',
+        reviewer: 'gpt-4o-mini',
+        summarizer: 'gemini-2.0-flash',
+        critic: 'gpt-4o',
+        custom: 'claude-haiku-3-5',
+      }
+      const optNodes = nodes.map(node => {
+        const bestModel = ROLE_BEST_MODEL[node.data.role] || 'claude-haiku-3-5'
+        const changed = node.data.model !== bestModel
+        return {
+          ...node,
+          data: {
+            ...node.data,
+            model: bestModel,
+            isOptimal: true,
+            changed,
+            originalModel: node.data.model,
+            changeReason: changed ? `역할에 최적화된 모델로 변경 추천` : '현재 모델이 최적입니다.',
+          },
+        }
+      })
+      setOptimalNodes(optNodes)
+      setOptimalEdges(edges)
+      setImprovementMetrics(null)
+      setHasGenerated(true)
+    } finally {
       setGenerating(false)
-    }, 800)
-  }, [setNodes, setEdges])
+    }
+  }, [nodes, edges])
+
+  // 최적화 비교 패널 토글 — 이미 추천 결과가 있으므로 패널만 열고 닫음
+  const handleToggleCompare = useCallback(() => {
+    setShowCompare(v => !v)
+  }, [])
 
   const applyOptimal = useCallback(() => {
     setNodes(optimalNodes.map(n => ({
       ...n,
-      data: { ...n.data, isOptimal: false, changed: false, originalModel: undefined }
+      data: { ...n.data, isOptimal: false, changed: false, originalModel: undefined, changeReason: undefined }
     })))
+    if (optimalEdges.length > 0) {
+      setEdges(optimalEdges)
+    }
     setShowCompare(false)
-  }, [optimalNodes, setNodes])
+  }, [optimalNodes, optimalEdges, setNodes, setEdges])
 
-  // callCount 반영된 비용/탄소 계산
-  const totalCost   = nodes.reduce((sum, n) => sum + calcCost(n.data.model, n.data.inputTokens, n.data.outputTokens, n.data.callCount), 0)
-  const totalTokens = nodes.reduce((sum, n) => sum + (n.data.inputTokens + n.data.outputTokens) * (n.data.callCount || 1), 0)
-  const co2         = (totalTokens / 1_000_000) * 0.3 * 0.4
-  const trees       = co2 / 21.77
+  // 비용/탄소 계산 — 백엔드 분석 결과가 있으면 사용, 없으면 클라이언트 계산
+  const totalCost   = analysis?.summary?.total_cost_usd
+    ?? nodes.reduce((sum, n) => sum + calcCostWithPrices(n.data.model, n.data.inputTokens, n.data.outputTokens, n.data.callCount), 0)
+  const totalTokens = analysis?.summary?.total_tokens
+    ?? nodes.reduce((sum, n) => sum + (n.data.inputTokens + n.data.outputTokens) * (n.data.callCount || 1), 0)
+  const co2         = analysis?.summary?.total_co2_kg ?? (totalTokens / 1_000_000) * 0.3 * 0.4
+  const trees       = analysis?.summary?.trees_equivalent ?? co2 / 21.77
 
   return (
     <div style={{ width: '100vw', height: '100vh', display: 'flex', flexDirection: 'column', background: '#0f1117' }}>
@@ -253,11 +288,18 @@ export default function App() {
         trees={trees}
         hasGenerated={hasGenerated}
         showCompare={showCompare}
-        onToggleCompare={() => setShowCompare(v => !v)}
+        onToggleCompare={handleToggleCompare}
       />
 
       <div style={{ flex: 1, display: 'flex', minHeight: 0, position: 'relative' }}>
-        <SummaryPanel nodes={nodes} totalCost={totalCost} co2={co2} trees={trees} calcCost={calcCost} />
+        <SummaryPanel
+          nodes={nodes}
+          totalCost={totalCost}
+          co2={co2}
+          trees={trees}
+          calcCost={calcCostWithPrices}
+          analysis={analysis}
+        />
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -295,16 +337,24 @@ export default function App() {
         )}
 
         {selected && !showCompare && (
-          <Sidebar node={selected} onUpdate={updateNode} onDelete={deleteNode} calcCost={calcCost} modelPrices={MODEL_PRICES} />
+          <Sidebar
+            node={selected}
+            onUpdate={updateNode}
+            onDelete={deleteNode}
+            calcCost={calcCostWithPrices}
+            modelPrices={modelPrices}
+            modelList={modelList}
+          />
         )}
 
         {showCompare && (
           <ComparePanel
             currentNodes={nodes}
             optimalNodes={optimalNodes}
-            calcCost={calcCost}
+            calcCost={calcCostWithPrices}
             onApply={applyOptimal}
             onClose={() => setShowCompare(false)}
+            improvementMetrics={improvementMetrics}
           />
         )}
       </div>

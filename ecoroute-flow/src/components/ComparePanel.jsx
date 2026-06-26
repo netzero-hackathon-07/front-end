@@ -3,17 +3,19 @@ const ROLE_LABELS = {
   reviewer: '리뷰어', summarizer: '서머라이저', critic: '크리틱', custom: '커스텀',
 }
 
-export default function ComparePanel({ currentNodes, optimalNodes, calcCost, onApply, onClose }) {
+export default function ComparePanel({ currentNodes, optimalNodes, calcCost, onApply, onClose, improvementMetrics }) {
   const currentTotal = currentNodes.reduce((sum, n) => sum + calcCost(n.data.model, n.data.inputTokens, n.data.outputTokens, n.data.callCount || 1), 0)
   const optimalTotal = optimalNodes.reduce((sum, n) => sum + calcCost(n.data.model, n.data.inputTokens, n.data.outputTokens, n.data.callCount || 1), 0)
-  const savedCost = currentTotal - optimalTotal
-  const savedPct  = currentTotal > 0 ? (savedCost / currentTotal * 100) : 0
+
+  // 백엔드 metrics가 있으면 사용, 없으면 클라이언트 계산
+  const savedCost = improvementMetrics?.cost_savings_usd ?? (currentTotal - optimalTotal)
+  const savedPct  = improvementMetrics?.cost_savings_percent ?? (currentTotal > 0 ? (savedCost / currentTotal * 100) : 0)
 
   const currentTokens = currentNodes.reduce((sum, n) => sum + (n.data.inputTokens + n.data.outputTokens) * (n.data.callCount || 1), 0)
   const optimalTokens = optimalNodes.reduce((sum, n) => sum + (n.data.inputTokens + n.data.outputTokens) * (n.data.callCount || 1), 0)
   const currentCo2 = (currentTokens / 1_000_000) * 0.3 * 0.4
   const optimalCo2 = (optimalTokens / 1_000_000) * 0.3 * 0.4
-  const savedCo2   = currentCo2 - optimalCo2
+  const savedCo2   = improvementMetrics?.carbon_savings_kg ?? (currentCo2 - optimalCo2)
 
   const changedNodes = optimalNodes.filter(n => n.data.changed)
 
@@ -118,7 +120,7 @@ export default function ComparePanel({ currentNodes, optimalNodes, calcCost, onA
                 </div>
 
                 {/* 변경 이유 */}
-                {optNode.data.changed && (
+                {optNode.data.changeReason && (
                   <div style={{
                     background: 'var(--bg-panel)',
                     borderRadius: 6, padding: '8px 10px',
@@ -126,6 +128,21 @@ export default function ComparePanel({ currentNodes, optimalNodes, calcCost, onA
                     borderLeft: '2px solid var(--teal)',
                   }}>
                     {optNode.data.changeReason}
+                  </div>
+                )}
+
+                {/* LLM 응답 (answer) */}
+                {optNode.data.answer && (
+                  <div style={{
+                    background: 'var(--bg-panel)',
+                    borderRadius: 6, padding: '8px 10px', marginTop: 6,
+                    fontSize: 10, color: 'var(--teal-mid)', lineHeight: 1.6,
+                    borderLeft: '2px solid var(--green-mid, #22c55e)',
+                    maxHeight: 120, overflowY: 'auto',
+                    whiteSpace: 'pre-wrap',
+                  }}>
+                    <div style={{ fontSize: 9, color: 'var(--teal)', letterSpacing: 1, marginBottom: 4 }}>💬 AI 응답</div>
+                    {optNode.data.answer}
                   </div>
                 )}
               </div>

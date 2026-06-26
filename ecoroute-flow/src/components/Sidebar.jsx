@@ -3,12 +3,16 @@ const ROLE_LABELS = {
   orchestrator: '오케스트레이터', planner: '플래너', executor: '익스큐터',
   reviewer: '리뷰어', summarizer: '서머라이저', critic: '크리틱', custom: '커스텀',
 }
-const MODELS = [
+const DEFAULT_MODELS = [
   'claude-opus-4','claude-sonnet-4','claude-haiku-3-5',
   'gpt-4o','gpt-4o-mini','o3-mini','gemini-2.0-flash',
 ]
 
-export default function Sidebar({ node, onUpdate, onDelete, calcCost, modelPrices }) {
+export default function Sidebar({ node, onUpdate, onDelete, calcCost, modelPrices, modelList }) {
+  // API에서 가져온 모델 목록이 있으면 사용, 없으면 기본값
+  const MODELS = modelList && modelList.length > 0
+    ? modelList.filter(m => m.enabled).map(m => m.name)
+    : DEFAULT_MODELS
   const { id, data } = node
   const callCount = data.callCount || 1
   const cost = calcCost(data.model, data.inputTokens, data.outputTokens, callCount)
