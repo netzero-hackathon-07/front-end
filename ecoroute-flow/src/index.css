@@ -1,0 +1,42 @@
+@import url('https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #0f1117;
+  --bg-panel:  #1a2035;
+  --teal:      #2cbfbf;
+  --teal-mid:  #94a3b8;
+  --teal-lite: #2cbfbf;
+  --teal-xlt:  #2cbfbf22;
+  --teal-dim:  #1e2533;
+  --teal-dim2: #2a3550;
+  --green:     #16a86a;
+  --green-mid: #16a86a;
+}
+
+body {
+  background: var(--bg);
+  font-family: 'Share Tech Mono', monospace;
+  color: #e2e8f0;
+}
+
+/* React Flow 오버라이드 */
+.react-flow__background { background: var(--bg) !important; }
+.react-flow__controls button {
+  background: var(--bg-panel) !important;
+  border: 1px solid var(--teal-dim) !important;
+  color: var(--teal) !important;
+}
+.react-flow__minimap { background: var(--bg-panel) !important; }
+.react-flow__edge-path { stroke: var(--teal) !important; }
+.react-flow__edge-animated path { stroke: var(--teal) !important; }
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1.2); opacity: 1; }
+}
+@keyframes slideIn {
+  from { transform: translateX(100%); }
+  to   { transform: translateX(0); }
+}
